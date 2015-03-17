@@ -57,14 +57,13 @@
 <span class="sd">&gt;&gt;&gt; out = Output(&#39;model.h5&#39;)</span>
 
 <span class="sd">Units: concentrations are expressed in nM and volumes in cubic microns.</span>
-<span class="sd">So, in these units, one Litre is 10^15 and a 1M solution is 10^9.</span>
-<span class="sd">The conversion factor between concentrations and particle number is</span>
-<span class="sd">therefore</span>
+<span class="sd">So, in these units, one Litre is 10¹⁵ and a 1M solution is 10⁹.</span>
+<span class="sd">The conversion factor between concentrations and particle number is therefore</span>
 
 <span class="sd">.. math::</span>
-<span class="sd">    N = 6.022…\cdot10^{23} \times V/10^{15} \times c/10^9</span>
+<span class="sd">    N = 6.022…\cdot10²³ \times V/10¹⁵ \times c/10⁹</span>
 
-<span class="sd">ie</span>
+<span class="sd">i.e.</span>
 
 <span class="sd">.. math ::</span>
 <span class="sd">    c = N / 0.6022… / V</span>
@@ -77,14 +76,18 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
 
-<span class="n">AVOGADRO</span> <span class="o">=</span> <span class="mf">6.02214179</span> <span class="c"># CODATA 2006</span>
+<span class="n">AVOGADRO</span> <span class="o">=</span> <span class="mf">6.02214179</span>
+<span class="sd">&quot;&quot;&quot;Avogadro constant from CODATA 2006&quot;&quot;&quot;</span>
 <span class="n">PUVC</span> <span class="o">=</span> <span class="n">AVOGADRO</span> <span class="o">/</span> <span class="mi">10</span>
+<span class="sd">&quot;&quot;&quot;Converts concentrations to particle numbers&quot;&quot;&quot;</span>
 
-<span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Model"><a class="viewcode-back" href="../../index.html#stochdiff.output.Model">[docs]</a><span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Information about the model, same for all trials</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">element</span>
 
-    <span class="k">def</span> <span class="nf">species</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Model.species"><a class="viewcode-back" href="../../index.html#stochdiff.output.Model.species">[docs]</a>    <span class="k">def</span> <span class="nf">species</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;List of specie names</span>
 
 <span class="sd">        Species are order the same as in other tables, so this table can be used to map species</span>
@@ -95,28 +98,36 @@
 <span class="sd">        [&#39;A&#39;]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">species</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">grid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="Model.grid"><a class="viewcode-back" href="../../index.html#stochdiff.output.Model.grid">[docs]</a>    <span class="k">def</span> <span class="nf">grid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Voxels of the simulation</span>
 
 <span class="sd">        Returns an recarray containing points defining the voxels and their volumes and regions.</span>
+
 <span class="sd">        &gt;&gt;&gt; model = Output(&#39;model.h5&#39;).model</span>
-<span class="sd">        &gt;&gt;&gt; grid = model.grid</span>
+<span class="sd">        &gt;&gt;&gt; grid = model.grid()</span>
+<span class="sd">        &gt;&gt;&gt; names = grid.dtype.names</span>
+<span class="sd">        &gt;&gt;&gt; print(textwrap.fill(&#39; &#39;.join(names), width=40))</span>
+<span class="sd">        x0 y0 z0 x1 y1 z1 x2 y2 z2 x3 y3 z3</span>
+<span class="sd">        volume deltaZ label region type group</span>
 <span class="sd">        &gt;&gt;&gt; grid.volume</span>
 <span class="sd">        array([ 2.])</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">recarray</span><span class="p">)</span>
-
-<span class="k">class</span> <span class="nc">Simulation</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+</div></div>
+<div class="viewcode-block" id="Simulation"><a class="viewcode-back" href="../../index.html#stochdiff.output.Simulation">[docs]</a><span class="k">class</span> <span class="nc">Simulation</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Information about the results of a trial</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_sim</span> <span class="o">=</span> <span class="n">element</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">_v_parent</span><span class="o">.</span><span class="n">_v_name</span><span class="p">[</span><span class="mi">5</span><span class="p">:])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
 
-    <span class="k">def</span> <span class="nf">times</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Simulation.times"><a class="viewcode-back" href="../../index.html#stochdiff.output.Simulation.times">[docs]</a>    <span class="k">def</span> <span class="nf">times</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sim</span><span class="o">.</span><span class="n">times</span>
-        
-    <span class="k">def</span> <span class="nf">concentrations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</div>
+<div class="viewcode-block" id="Simulation.counts"><a class="viewcode-back" href="../../index.html#stochdiff.output.Simulation.counts">[docs]</a>    <span class="k">def</span> <span class="nf">counts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sim</span><span class="o">.</span><span class="n">concentrations</span>
         <span class="n">panel</span><span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Panel</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span>
                         <span class="n">items</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">(),</span>
@@ -125,7 +136,7 @@
         <span class="n">frame</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span>
         <span class="n">frame</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;voxel&#39;</span><span class="p">,</span> <span class="s">&#39;time&#39;</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">frame</span>
-
+</div></div>
 <div class="viewcode-block" id="Output"><a class="viewcode-back" href="../../index.html#stochdiff.output.Output">[docs]</a><span class="k">class</span> <span class="nc">Output</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The output for a single model, 0 or more experiments</span>
 
@@ -135,12 +146,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="n">tables</span><span class="o">.</span><span class="n">openFile</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">trial0</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">simulations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Output.simulations"><a class="viewcode-back" href="../../index.html#stochdiff.output.Output.simulations">[docs]</a>    <span class="k">def</span> <span class="nf">simulations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">trials</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">list_nodes</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
         <span class="n">sims</span> <span class="o">=</span> <span class="p">[</span><span class="n">Simulation</span><span class="p">(</span><span class="n">trial</span><span class="o">.</span><span class="n">simulation</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span> <span class="k">for</span> <span class="n">trial</span> <span class="ow">in</span> <span class="n">trials</span><span class="p">]</span>
         <span class="n">sims</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">attrgetter</span><span class="p">(</span><span class="s">&#39;number&#39;</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">sims</span>
-
+</div>
 <div class="viewcode-block" id="Output.counts"><a class="viewcode-back" href="../../index.html#stochdiff.output.Output.counts">[docs]</a>    <span class="k">def</span> <span class="nf">counts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Aggregated table of particle counts</span>
 
@@ -148,7 +159,7 @@
 <span class="sd">        &gt;&gt;&gt; counts = out.counts()</span>
 <span class="sd">        &gt;&gt;&gt; counts.head(1)</span>
 <span class="sd">                                   count</span>
-<span class="sd">        voxel time specie trial         </span>
+<span class="sd">        voxel time specie trial</span>
 <span class="sd">        0     0    A      0      1204428</span>
 
 <span class="sd">        Calculate average over trials</span>
@@ -156,21 +167,21 @@
 <span class="sd">        &gt;&gt;&gt; gb = counts.groupby(level=&#39;voxel time  specie&#39;.split())</span>
 <span class="sd">        &gt;&gt;&gt; gb.mean().head(1)</span>
 <span class="sd">                                    count</span>
-<span class="sd">        voxel time specie                </span>
+<span class="sd">        voxel time specie</span>
 <span class="sd">        0     0    A       1204428.433333</span>
 
 <span class="sd">        Calculate mean and standard deviation</span>
 
 <span class="sd">        &gt;&gt;&gt; gb.aggregate([np.mean, np.std]).head(3)</span>
-<span class="sd">                                    count            </span>
+<span class="sd">                                    count</span>
 <span class="sd">                                     mean         std</span>
-<span class="sd">        voxel time specie                            </span>
+<span class="sd">        voxel time specie</span>
 <span class="sd">        0     0    A       1204428.433333    0.504007</span>
 <span class="sd">              5    A       1192430.800000  123.919440</span>
 <span class="sd">              10   A       1180586.466667  179.969870</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">sims</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulations</span><span class="p">()</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">sim</span><span class="o">.</span><span class="n">concentrations</span><span class="p">())</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">sim</span><span class="o">.</span><span class="n">counts</span><span class="p">())</span>
                     <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">sim</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sims</span><span class="p">))</span>
         <span class="n">panel</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Panel</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
         <span class="n">series</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">stack</span><span class="p">()</span>
@@ -184,11 +195,11 @@
 <span class="sd">        &gt;&gt;&gt; out = Output(&#39;model.h5&#39;)</span>
 <span class="sd">        &gt;&gt;&gt; out.counts().head(1)</span>
 <span class="sd">                                   count</span>
-<span class="sd">        voxel time specie trial         </span>
+<span class="sd">        voxel time specie trial</span>
 <span class="sd">        0     0    A      0      1204428</span>
 <span class="sd">        &gt;&gt;&gt; out.concentrations().head(1)</span>
 <span class="sd">                                 concentration</span>
-<span class="sd">        voxel time specie trial               </span>
+<span class="sd">        voxel time specie trial</span>
 <span class="sd">        0     0    A      0      999999.702764</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">counts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">counts</span><span class="p">()</span>

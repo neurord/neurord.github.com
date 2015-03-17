@@ -52,14 +52,77 @@
 </pre></div>
 </div>
 <p>Units: concentrations are expressed in nM and volumes in cubic microns.
-So, in these units, one Litre is 10^15 and a 1M solution is 10^9.
-The conversion factor between concentrations and particle number is
-therefore</p>
+So, in these units, one Litre is 10¹⁵ and a 1M solution is 10⁹.
+The conversion factor between concentrations and particle number is therefore</p>
 <div class="math">
-\[N = 6.022…\cdot10^{23} \times V/10^{15} \times c/10^9\]</div>
-<p>ie</p>
+\[N = 6.022…\cdot10²³ \times V/10¹⁵ \times c/10⁹\]</div>
+<p>i.e.</p>
 <div class="math">
 \[c = N / 0.6022… / V\]</div>
+<dl class="data">
+<dt id="stochdiff.output.AVOGADRO">
+<tt class="descclassname">stochdiff.output.</tt><tt class="descname">AVOGADRO</tt><em class="property"> = 6.02214179</em><a class="headerlink" href="#stochdiff.output.AVOGADRO" title="Permalink to this definition">¶</a></dt>
+<dd><p>Avogadro constant from CODATA 2006</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="stochdiff.output.PUVC">
+<tt class="descclassname">stochdiff.output.</tt><tt class="descname">PUVC</tt><em class="property"> = 0.602214179</em><a class="headerlink" href="#stochdiff.output.PUVC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts concentrations to particle numbers</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="stochdiff.output.Model">
+<em class="property">class </em><tt class="descclassname">stochdiff.output.</tt><tt class="descname">Model</tt><big>(</big><em>element</em><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Information about the model, same for all trials</p>
+<dl class="method">
+<dt id="stochdiff.output.Model.species">
+<tt class="descname">species</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Model.species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Model.species" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of specie names</p>
+<p>Species are order the same as in other tables, so this table can be used to map species
+indices to actual names.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="s">&#39;model.h5&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">species</span>
+<span class="go">[&#39;A&#39;]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="stochdiff.output.Model.grid">
+<tt class="descname">grid</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Model.grid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Model.grid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Voxels of the simulation</p>
+<p>Returns an recarray containing points defining the voxels and their volumes and regions.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="s">&#39;model.h5&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">grid</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">names</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">textwrap</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">names</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mi">40</span><span class="p">))</span>
+<span class="go">x0 y0 z0 x1 y1 z1 x2 y2 z2 x3 y3 z3</span>
+<span class="go">volume deltaZ label region type group</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">grid</span><span class="o">.</span><span class="n">volume</span>
+<span class="go">array([ 2.])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="stochdiff.output.Simulation">
+<em class="property">class </em><tt class="descclassname">stochdiff.output.</tt><tt class="descname">Simulation</tt><big>(</big><em>element</em>, <em>model</em><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Simulation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Simulation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Information about the results of a trial</p>
+<dl class="method">
+<dt id="stochdiff.output.Simulation.times">
+<tt class="descname">times</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Simulation.times"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Simulation.times" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="stochdiff.output.Simulation.counts">
+<tt class="descname">counts</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Simulation.counts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Simulation.counts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="class">
 <dt id="stochdiff.output.Output">
 <em class="property">class </em><tt class="descclassname">stochdiff.output.</tt><tt class="descname">Output</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Output" title="Permalink to this definition">¶</a></dt>
@@ -68,21 +131,9 @@ therefore</p>
 </pre></div>
 </div>
 <dl class="method">
-<dt id="stochdiff.output.Output.concentrations">
-<tt class="descname">concentrations</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Output.concentrations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Output.concentrations" title="Permalink to this definition">¶</a></dt>
-<dd><p>Counts converted to concentrations using voxel volumes</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="s">&#39;model.h5&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span><span class="o">.</span><span class="n">counts</span><span class="p">()</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-<span class="go">                           count</span>
-<span class="go">voxel time specie trial         </span>
-<span class="go">0     0    A      0      1204428</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span><span class="o">.</span><span class="n">concentrations</span><span class="p">()</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-<span class="go">                         concentration</span>
-<span class="go">voxel time specie trial               </span>
-<span class="go">0     0    A      0      999999.702764</span>
-</pre></div>
-</div>
-</dd></dl>
+<dt id="stochdiff.output.Output.simulations">
+<tt class="descname">simulations</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Output.simulations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Output.simulations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 <dl class="method">
 <dt id="stochdiff.output.Output.counts">
@@ -92,7 +143,7 @@ therefore</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">counts</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">counts</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">counts</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 <span class="go">                           count</span>
-<span class="go">voxel time specie trial         </span>
+<span class="go">voxel time specie trial</span>
 <span class="go">0     0    A      0      1204428</span>
 </pre></div>
 </div>
@@ -100,18 +151,35 @@ therefore</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">gb</span> <span class="o">=</span> <span class="n">counts</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s">&#39;voxel time  specie&#39;</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">gb</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 <span class="go">                            count</span>
-<span class="go">voxel time specie                </span>
+<span class="go">voxel time specie</span>
 <span class="go">0     0    A       1204428.433333</span>
 </pre></div>
 </div>
 <p>Calculate mean and standard deviation</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">gb</span><span class="o">.</span><span class="n">aggregate</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">])</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-<span class="go">                            count            </span>
+<span class="go">                            count</span>
 <span class="go">                             mean         std</span>
-<span class="go">voxel time specie                            </span>
+<span class="go">voxel time specie</span>
 <span class="go">0     0    A       1204428.433333    0.504007</span>
 <span class="go">      5    A       1192430.800000  123.919440</span>
 <span class="go">      10   A       1180586.466667  179.969870</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="stochdiff.output.Output.concentrations">
+<tt class="descname">concentrations</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Output.concentrations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Output.concentrations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Counts converted to concentrations using voxel volumes</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="s">&#39;model.h5&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span><span class="o">.</span><span class="n">counts</span><span class="p">()</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">                           count</span>
+<span class="go">voxel time specie trial</span>
+<span class="go">0     0    A      0      1204428</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span><span class="o">.</span><span class="n">concentrations</span><span class="p">()</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">                         concentration</span>
+<span class="go">voxel time specie trial</span>
+<span class="go">0     0    A      0      999999.702764</span>
 </pre></div>
 </div>
 </dd></dl>
