@@ -1,0 +1,241 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>stochdiff.output &mdash; StochDiff 0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="StochDiff 0.0 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">StochDiff 0.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for stochdiff.output</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/python</span>
+<span class="c"># -*- coding:utf-8 -*-</span>
+
+<span class="sd">r&quot;&quot;&quot;</span>
+<span class="sd">Wrapper which makes reading stochdiff HDF5 output easier to use</span>
+
+<span class="sd">&gt;&gt;&gt; out = Output(&#39;model.h5&#39;)</span>
+
+<span class="sd">Units: concentrations are expressed in nM and volumes in cubic microns.</span>
+<span class="sd">So, in these units, one Litre is 10^15 and a 1M solution is 10^9.</span>
+<span class="sd">The conversion factor between concentrations and particle number is</span>
+<span class="sd">therefore</span>
+
+<span class="sd">.. math::</span>
+<span class="sd">    N = 6.022…\cdot10^{23} \times V/10^{15} \times c/10^9</span>
+
+<span class="sd">ie</span>
+
+<span class="sd">.. math ::</span>
+<span class="sd">    c = N / 0.6022… / V</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">operator</span>
+<span class="kn">import</span> <span class="nn">tables</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+
+<span class="n">AVOGADRO</span> <span class="o">=</span> <span class="mf">6.02214179</span> <span class="c"># CODATA 2006</span>
+<span class="n">PUVC</span> <span class="o">=</span> <span class="n">AVOGADRO</span> <span class="o">/</span> <span class="mi">10</span>
+
+<span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">element</span>
+
+    <span class="k">def</span> <span class="nf">species</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;List of specie names</span>
+
+<span class="sd">        Species are order the same as in other tables, so this table can be used to map species</span>
+<span class="sd">        indices to actual names.</span>
+
+<span class="sd">        &gt;&gt;&gt; model = Output(&#39;model.h5&#39;).model</span>
+<span class="sd">        &gt;&gt;&gt; model.species</span>
+<span class="sd">        [&#39;A&#39;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">species</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">grid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Voxels of the simulation</span>
+
+<span class="sd">        Returns an recarray containing points defining the voxels and their volumes and regions.</span>
+<span class="sd">        &gt;&gt;&gt; model = Output(&#39;model.h5&#39;).model</span>
+<span class="sd">        &gt;&gt;&gt; grid = model.grid</span>
+<span class="sd">        &gt;&gt;&gt; grid.volume</span>
+<span class="sd">        array([ 2.])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">recarray</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">Simulation</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sim</span> <span class="o">=</span> <span class="n">element</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">_v_parent</span><span class="o">.</span><span class="n">_v_name</span><span class="p">[</span><span class="mi">5</span><span class="p">:])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+
+    <span class="k">def</span> <span class="nf">times</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sim</span><span class="o">.</span><span class="n">times</span>
+        
+    <span class="k">def</span> <span class="nf">concentrations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sim</span><span class="o">.</span><span class="n">concentrations</span>
+        <span class="n">panel</span><span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Panel</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span>
+                        <span class="n">items</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">(),</span>
+                        <span class="n">major_axis</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+                        <span class="n">minor_axis</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">species</span><span class="p">())</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span>
+        <span class="n">frame</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;voxel&#39;</span><span class="p">,</span> <span class="s">&#39;time&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">frame</span>
+
+<div class="viewcode-block" id="Output"><a class="viewcode-back" href="../../index.html#stochdiff.output.Output">[docs]</a><span class="k">class</span> <span class="nc">Output</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The output for a single model, 0 or more experiments</span>
+
+<span class="sd">    &gt;&gt;&gt; out = Output(&#39;model.h5&#39;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="n">tables</span><span class="o">.</span><span class="n">openFile</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">trial0</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">simulations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">trials</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">list_nodes</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+        <span class="n">sims</span> <span class="o">=</span> <span class="p">[</span><span class="n">Simulation</span><span class="p">(</span><span class="n">trial</span><span class="o">.</span><span class="n">simulation</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span> <span class="k">for</span> <span class="n">trial</span> <span class="ow">in</span> <span class="n">trials</span><span class="p">]</span>
+        <span class="n">sims</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">attrgetter</span><span class="p">(</span><span class="s">&#39;number&#39;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">sims</span>
+
+<div class="viewcode-block" id="Output.counts"><a class="viewcode-back" href="../../index.html#stochdiff.output.Output.counts">[docs]</a>    <span class="k">def</span> <span class="nf">counts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Aggregated table of particle counts</span>
+
+<span class="sd">        &gt;&gt;&gt; out = Output(&#39;model.h5&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; counts = out.counts()</span>
+<span class="sd">        &gt;&gt;&gt; counts.head(1)</span>
+<span class="sd">                                   count</span>
+<span class="sd">        voxel time specie trial         </span>
+<span class="sd">        0     0    A      0      1204428</span>
+
+<span class="sd">        Calculate average over trials</span>
+
+<span class="sd">        &gt;&gt;&gt; gb = counts.groupby(level=&#39;voxel time  specie&#39;.split())</span>
+<span class="sd">        &gt;&gt;&gt; gb.mean().head(1)</span>
+<span class="sd">                                    count</span>
+<span class="sd">        voxel time specie                </span>
+<span class="sd">        0     0    A       1204428.433333</span>
+
+<span class="sd">        Calculate mean and standard deviation</span>
+
+<span class="sd">        &gt;&gt;&gt; gb.aggregate([np.mean, np.std]).head(3)</span>
+<span class="sd">                                    count            </span>
+<span class="sd">                                     mean         std</span>
+<span class="sd">        voxel time specie                            </span>
+<span class="sd">        0     0    A       1204428.433333    0.504007</span>
+<span class="sd">              5    A       1192430.800000  123.919440</span>
+<span class="sd">              10   A       1180586.466667  179.969870</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sims</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulations</span><span class="p">()</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">sim</span><span class="o">.</span><span class="n">concentrations</span><span class="p">())</span>
+                    <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">sim</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sims</span><span class="p">))</span>
+        <span class="n">panel</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Panel</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">series</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">stack</span><span class="p">()</span>
+        <span class="n">series</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="s">&#39;voxel time specie trial&#39;</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="n">series</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">frame</span>
+</div>
+<div class="viewcode-block" id="Output.concentrations"><a class="viewcode-back" href="../../index.html#stochdiff.output.Output.concentrations">[docs]</a>    <span class="k">def</span> <span class="nf">concentrations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Counts converted to concentrations using voxel volumes</span>
+
+<span class="sd">        &gt;&gt;&gt; out = Output(&#39;model.h5&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; out.counts().head(1)</span>
+<span class="sd">                                   count</span>
+<span class="sd">        voxel time specie trial         </span>
+<span class="sd">        0     0    A      0      1204428</span>
+<span class="sd">        &gt;&gt;&gt; out.concentrations().head(1)</span>
+<span class="sd">                                 concentration</span>
+<span class="sd">        voxel time specie trial               </span>
+<span class="sd">        0     0    A      0      999999.702764</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">counts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">counts</span><span class="p">()</span>
+        <span class="n">volumes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span><span class="o">.</span><span class="n">volume</span>
+        <span class="n">ans</span> <span class="o">=</span> <span class="n">counts</span> <span class="o">/</span> <span class="n">volumes</span> <span class="o">/</span> <span class="n">PUVC</span>
+        <span class="n">ans</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;count&#39;</span><span class="p">:</span><span class="s">&#39;concentration&#39;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ans</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">StochDiff 0.0 documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>

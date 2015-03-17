@@ -1,0 +1,168 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Stochdiff.output module &mdash; StochDiff 0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="StochDiff 0.0 documentation" href="#" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="#">StochDiff 0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-stochdiff.output">
+<span id="stochdiff-output-module"></span><h1>Stochdiff.output module<a class="headerlink" href="#module-stochdiff.output" title="Permalink to this headline">¶</a></h1>
+<p>Wrapper which makes reading stochdiff HDF5 output easier to use</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="s">&#39;model.h5&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Units: concentrations are expressed in nM and volumes in cubic microns.
+So, in these units, one Litre is 10^15 and a 1M solution is 10^9.
+The conversion factor between concentrations and particle number is
+therefore</p>
+<div class="math">
+\[N = 6.022…\cdot10^{23} \times V/10^{15} \times c/10^9\]</div>
+<p>ie</p>
+<div class="math">
+\[c = N / 0.6022… / V\]</div>
+<dl class="class">
+<dt id="stochdiff.output.Output">
+<em class="property">class </em><tt class="descclassname">stochdiff.output.</tt><tt class="descname">Output</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Output" title="Permalink to this definition">¶</a></dt>
+<dd><p>The output for a single model, 0 or more experiments</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="s">&#39;model.h5&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="stochdiff.output.Output.concentrations">
+<tt class="descname">concentrations</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Output.concentrations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Output.concentrations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Counts converted to concentrations using voxel volumes</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="s">&#39;model.h5&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span><span class="o">.</span><span class="n">counts</span><span class="p">()</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">                           count</span>
+<span class="go">voxel time specie trial         </span>
+<span class="go">0     0    A      0      1204428</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span><span class="o">.</span><span class="n">concentrations</span><span class="p">()</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">                         concentration</span>
+<span class="go">voxel time specie trial               </span>
+<span class="go">0     0    A      0      999999.702764</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="stochdiff.output.Output.counts">
+<tt class="descname">counts</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Output.counts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Output.counts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Aggregated table of particle counts</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="s">&#39;model.h5&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">counts</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">counts</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">counts</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">                           count</span>
+<span class="go">voxel time specie trial         </span>
+<span class="go">0     0    A      0      1204428</span>
+</pre></div>
+</div>
+<p>Calculate average over trials</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">gb</span> <span class="o">=</span> <span class="n">counts</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s">&#39;voxel time  specie&#39;</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gb</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">                            count</span>
+<span class="go">voxel time specie                </span>
+<span class="go">0     0    A       1204428.433333</span>
+</pre></div>
+</div>
+<p>Calculate mean and standard deviation</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">gb</span><span class="o">.</span><span class="n">aggregate</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">])</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                            count            </span>
+<span class="go">                             mean         std</span>
+<span class="go">voxel time specie                            </span>
+<span class="go">0     0    A       1204428.433333    0.504007</span>
+<span class="go">      5    A       1192430.800000  123.919440</span>
+<span class="go">      10   A       1180586.466667  179.969870</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="#">StochDiff 0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>
