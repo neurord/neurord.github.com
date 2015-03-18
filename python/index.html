@@ -124,6 +124,56 @@ The conversion factor between concentrations and particle number is therefore</p
 </dd></dl>
 
 <dl class="class">
+<dt id="stochdiff.output.Reactions">
+<em class="property">class </em><tt class="descclassname">stochdiff.output.</tt><tt class="descname">Reactions</tt><big>(</big><em>element</em><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Reactions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Reactions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raw information about reactions</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="s">&#39;model.h5&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">reactions</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">reactions</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">reactions</span><span class="o">.</span><span class="n">reactants</span><span class="p">())</span>
+<span class="go">[[0]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">reactions</span><span class="o">.</span><span class="n">reactant_stoichiometry</span><span class="p">())</span>
+<span class="go">[[1]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">reactions</span><span class="o">.</span><span class="n">products</span><span class="p">())</span>
+<span class="go">[[]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">reactions</span><span class="o">.</span><span class="n">product_stoichiometry</span><span class="p">())</span>
+<span class="go">[[]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">reactions</span><span class="o">.</span><span class="n">rates</span><span class="p">())</span>
+<span class="go">[0.002]</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="stochdiff.output.Reactions.reactants">
+<tt class="descname">reactants</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Reactions.reactants"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Reactions.reactants" title="Permalink to this definition">¶</a></dt>
+<dd><p>A generator of lists of reactants (by index)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="stochdiff.output.Reactions.reactant_stoichiometry">
+<tt class="descname">reactant_stoichiometry</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Reactions.reactant_stoichiometry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Reactions.reactant_stoichiometry" title="Permalink to this definition">¶</a></dt>
+<dd><p>A generator of lists of stoichiometries (by index)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="stochdiff.output.Reactions.products">
+<tt class="descname">products</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Reactions.products"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Reactions.products" title="Permalink to this definition">¶</a></dt>
+<dd><p>A generator of lists of products (by index)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="stochdiff.output.Reactions.product_stoichiometry">
+<tt class="descname">product_stoichiometry</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Reactions.product_stoichiometry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Reactions.product_stoichiometry" title="Permalink to this definition">¶</a></dt>
+<dd><p>A generator of lists of stoichiometries (by index)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="stochdiff.output.Reactions.rates">
+<tt class="descname">rates</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Reactions.rates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Reactions.rates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rates of the reactions</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="stochdiff.output.Model">
 <em class="property">class </em><tt class="descclassname">stochdiff.output.</tt><tt class="descname">Model</tt><big>(</big><em>element</em><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Information about the model, same for all trials</p>
@@ -303,6 +353,28 @@ indices to actual names.</p>
 
 </dd></dl>
 
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">stochdiff</span> <span class="kn">import</span> <span class="n">output</span>
+<span class="n">out</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">Output</span><span class="p">(</span><span class="s">&#39;model.h5&#39;</span><span class="p">)</span>
+<span class="n">counts</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">counts</span><span class="p">()</span>
+<span class="n">gb</span> <span class="o">=</span> <span class="n">counts</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s">&#39;voxel time  specie&#39;</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+<span class="k">def</span> <span class="nf">stdp3</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+   <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span>
+<span class="k">def</span> <span class="nf">stdm3</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+   <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">gb</span><span class="o">.</span><span class="n">aggregate</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span> <span class="n">stdp3</span><span class="p">,</span> <span class="n">stdm3</span><span class="p">])</span>
+<span class="n">data</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>(<a class="reference external" href=".//index-1.py">Source code</a>, <a class="reference external" href=".//index-1.png">png</a>, <a class="reference external" href=".//index-1.hires.png">hires.png</a>, <a class="reference external" href=".//index-1.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="_images/index-1.png" src="_images/index-1.png" />
+</div>
+</div>
 </div>
 
 
@@ -311,6 +383,14 @@ indices to actual names.</p>
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Stochdiff.output module</a><ul>
+<li><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/index.txt"
