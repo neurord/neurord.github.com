@@ -78,6 +78,12 @@ The conversion factor between concentrations and particle number is therefore</p
 </dd></dl>
 
 <dl class="class">
+<dt id="stochdiff.output.EventKind">
+<em class="property">class </em><tt class="descclassname">stochdiff.output.</tt><tt class="descname">EventKind</tt><a class="reference internal" href="_modules/stochdiff/output.html#EventKind"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.EventKind" title="Permalink to this definition">¶</a></dt>
+<dd><p>Event types matching IGridCalc.EventKind enumeration</p>
+</dd></dl>
+
+<dl class="class">
 <dt id="stochdiff.output.Dependencies">
 <em class="property">class </em><tt class="descclassname">stochdiff.output.</tt><tt class="descname">Dependencies</tt><big>(</big><em>element</em><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Dependencies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Dependencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>Raw information about the dependency graph</p>
@@ -171,6 +177,15 @@ The conversion factor between concentrations and particle number is therefore</p
 <dd><p>Rates of the reactions</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="stochdiff.output.Reactions.reversible_pairs">
+<tt class="descname">reversible_pairs</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Reactions.reversible_pairs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Reactions.reversible_pairs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mapping to reverse reactions</p>
+<p>For reaction i which has a reverse reaction, reversible_pairs()[i]
+gives the index of the reverse reaction. Reactions which do not have
+a reverse are not included.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -179,7 +194,7 @@ The conversion factor between concentrations and particle number is therefore</p
 <dd><p>Information about the model, same for all trials</p>
 <dl class="method">
 <dt id="stochdiff.output.Model.species">
-<tt class="descname">species</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Model.species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Model.species" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">species</tt><big>(</big><em>indices=None</em><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Model.species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Model.species" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of specie names</p>
 <p>Species are order the same as in other tables, so this table can be used to map species
 indices to actual names.</p>
@@ -233,7 +248,7 @@ indices to actual names.</p>
 
 <dl class="method">
 <dt id="stochdiff.output.Model.region_names">
-<tt class="descname">region_names</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Model.region_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Model.region_names" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">region_names</tt><big>(</big><em>indices=None</em><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Model.region_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Model.region_names" title="Permalink to this definition">¶</a></dt>
 <dd><p>Region names (by index)</p>
 </dd></dl>
 
@@ -272,6 +287,12 @@ indices to actual names.</p>
 <span class="go">2D</span>
 </pre></div>
 </div>
+</dd></dl>
+
+<dl class="method">
+<dt id="stochdiff.output.Simulation.events">
+<tt class="descname">events</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Simulation.events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Simulation.events" title="Permalink to this definition">¶</a></dt>
+<dd><p>A full history of events</p>
 </dd></dl>
 
 </dd></dl>
@@ -351,6 +372,12 @@ indices to actual names.</p>
 </div>
 </dd></dl>
 
+<dl class="method">
+<dt id="stochdiff.output.Output.events">
+<tt class="descname">events</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Output.events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Output.events" title="Permalink to this definition">¶</a></dt>
+<dd><p>A log of events from all simulations</p>
+</dd></dl>
+
 </dd></dl>
 
 <div class="section" id="examples">
@@ -427,7 +454,7 @@ indices to actual names.</p>
     </div>
     <div class="footer">
         &copy; Copyright .
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>
 </html>

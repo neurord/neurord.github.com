@@ -73,7 +73,9 @@
 
 <span class="kn">import</span> <span class="nn">operator</span>
 <span class="kn">import</span> <span class="nn">enum</span>
+<span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">tables</span>
+<span class="kn">import</span> <span class="nn">functools</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">lxml</span> <span class="kn">import</span> <span class="n">etree</span>
@@ -88,6 +90,11 @@
     <span class="n">REACTION</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">DIFFUSION</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">STIMULATION</span> <span class="o">=</span> <span class="mi">2</span>
+</div>
+<div class="viewcode-block" id="EventKind"><a class="viewcode-back" href="../../index.html#stochdiff.output.EventKind">[docs]</a><span class="k">class</span> <span class="nc">EventKind</span><span class="p">(</span><span class="n">enum</span><span class="o">.</span><span class="n">IntEnum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Event types matching IGridCalc.EventKind enumeration&quot;&quot;&quot;</span>
+    <span class="n">EXACT</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">LEAP</span> <span class="o">=</span> <span class="mi">1</span>
 </div>
 <div class="viewcode-block" id="Dependencies"><a class="viewcode-back" href="../../index.html#stochdiff.output.Dependencies">[docs]</a><span class="k">class</span> <span class="nc">Dependencies</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Raw information about the dependency graph</span>
@@ -174,16 +181,31 @@
 <div class="viewcode-block" id="Reactions.rates"><a class="viewcode-back" href="../../index.html#stochdiff.output.Reactions.rates">[docs]</a>    <span class="k">def</span> <span class="nf">rates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="s">&quot;Rates of the reactions&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">rates</span>
+</div>
+<div class="viewcode-block" id="Reactions.reversible_pairs"><a class="viewcode-back" href="../../index.html#stochdiff.output.Reactions.reversible_pairs">[docs]</a>    <span class="k">def</span> <span class="nf">reversible_pairs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Mapping to reverse reactions</span>
+
+<span class="sd">        For reaction i which has a reverse reaction, reversible_pairs()[i]</span>
+<span class="sd">        gives the index of the reverse reaction. Reactions which do not have</span>
+<span class="sd">        a reverse are not included.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">reversible_pairs</span>
+        <span class="n">mapping</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span><span class="n">indices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">))</span>
+                   <span class="k">if</span> <span class="n">indices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">mapping</span>
 </div></div>
 <div class="viewcode-block" id="Model"><a class="viewcode-back" href="../../index.html#stochdiff.output.Model">[docs]</a><span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Information about the model, same for all trials</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_element</span> <span class="o">=</span> <span class="n">element</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span> <span class="o">=</span> <span class="n">Dependencies</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">dependencies</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span> <span class="o">=</span> <span class="n">Dependencies</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">dependencies</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">tables</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">NoSuchNodeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reactions</span> <span class="o">=</span> <span class="n">Reactions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">reactions</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Model.species"><a class="viewcode-back" href="../../index.html#stochdiff.output.Model.species">[docs]</a>    <span class="k">def</span> <span class="nf">species</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Model.species"><a class="viewcode-back" href="../../index.html#stochdiff.output.Model.species">[docs]</a>    <span class="k">def</span> <span class="nf">species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;List of specie names</span>
 
 <span class="sd">        Species are order the same as in other tables, so this table can be used to map species</span>
@@ -193,7 +215,8 @@
 <span class="sd">        &gt;&gt;&gt; model.species</span>
 <span class="sd">        [&#39;A&#39;]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">species</span><span class="p">)</span>
+        <span class="n">what</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span> <span class="k">if</span> <span class="n">indices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">species</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">what</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="Model.grid"><a class="viewcode-back" href="../../index.html#stochdiff.output.Model.grid">[docs]</a>    <span class="k">def</span> <span class="nf">grid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Voxels of the simulation</span>
@@ -219,7 +242,7 @@
 </div>
 <div class="viewcode-block" id="Model.indices"><a class="viewcode-back" href="../../index.html#stochdiff.output.Model.indices">[docs]</a>    <span class="k">def</span> <span class="nf">indices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="s">&quot;Numbers of the elements&quot;</span>
-        <span class="k">return</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">species</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">return</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 </div>
 <div class="viewcode-block" id="Model.neighbors"><a class="viewcode-back" href="../../index.html#stochdiff.output.Model.neighbors">[docs]</a>    <span class="k">def</span> <span class="nf">neighbors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="s">&quot;A generator of lists of neighboring nodes (by index)&quot;</span>
@@ -233,23 +256,26 @@
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">neigh</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">neighbors</span><span class="p">()):</span>
             <span class="k">yield</span> <span class="nb">list</span><span class="p">(</span><span class="n">coupl</span><span class="p">[</span><span class="n">i</span><span class="p">][:</span><span class="nb">len</span><span class="p">(</span><span class="n">neigh</span><span class="p">)])</span>
 </div>
-<div class="viewcode-block" id="Model.region_names"><a class="viewcode-back" href="../../index.html#stochdiff.output.Model.region_names">[docs]</a>    <span class="k">def</span> <span class="nf">region_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Model.region_names"><a class="viewcode-back" href="../../index.html#stochdiff.output.Model.region_names">[docs]</a>    <span class="k">def</span> <span class="nf">region_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="s">&quot;Region names (by index)&quot;</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">row</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">regions</span><span class="p">]</span>
+        <span class="n">what</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">regions</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span> <span class="k">if</span> <span class="n">indices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">regions</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">row</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">what</span><span class="p">]</span>
 </div></div>
 <div class="viewcode-block" id="Simulation"><a class="viewcode-back" href="../../index.html#stochdiff.output.Simulation">[docs]</a><span class="k">class</span> <span class="nc">Simulation</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Information about the results of a trial</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_sim</span> <span class="o">=</span> <span class="n">element</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">_v_parent</span><span class="o">.</span><span class="n">_v_name</span><span class="p">[</span><span class="mi">5</span><span class="p">:])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_element</span> <span class="o">=</span> <span class="n">element</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">_v_name</span><span class="p">[</span><span class="mi">5</span><span class="p">:])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
 
 <div class="viewcode-block" id="Simulation.times"><a class="viewcode-back" href="../../index.html#stochdiff.output.Simulation.times">[docs]</a>    <span class="k">def</span> <span class="nf">times</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sim</span><span class="o">.</span><span class="n">times</span>
+        <span class="n">times</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">__main__</span><span class="o">.</span><span class="n">times</span><span class="p">[:]</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="n">times</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">decimals</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">diff</span><span class="p">)),</span> <span class="mi">0</span><span class="p">))</span>
 </div>
 <div class="viewcode-block" id="Simulation.counts"><a class="viewcode-back" href="../../index.html#stochdiff.output.Simulation.counts">[docs]</a>    <span class="k">def</span> <span class="nf">counts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sim</span><span class="o">.</span><span class="n">concentrations</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">__main__</span><span class="o">.</span><span class="n">population</span>
         <span class="n">panel</span><span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Panel</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span>
                         <span class="n">items</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">(),</span>
                         <span class="n">major_axis</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
@@ -279,8 +305,26 @@
 <span class="sd">        2D</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">xml</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sim</span><span class="o">.</span><span class="n">serialized_config</span>
+        <span class="n">xml</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">serialized_config</span>
+        <span class="c"># FIXME: overwrite seed?</span>
         <span class="k">return</span> <span class="n">etree</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">xml</span><span class="o">.</span><span class="n">read</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span>
+</div>
+<div class="viewcode-block" id="Simulation.events"><a class="viewcode-back" href="../../index.html#stochdiff.output.Simulation.events">[docs]</a>    <span class="k">def</span> <span class="nf">events</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">&quot;A full history of events&quot;</span>
+        <span class="n">times</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">times</span><span class="p">[:]</span>
+        <span class="n">waited</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">waited</span><span class="p">[:]</span>
+        <span class="n">original</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">original_wait</span><span class="p">[:]</span>
+        <span class="n">events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">events</span><span class="p">[:]</span>
+        <span class="n">extents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">extents</span><span class="p">[:]</span>
+        <span class="n">kinds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">kinds</span><span class="p">[:]</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">times</span><span class="p">,</span>
+                               <span class="n">waited</span><span class="o">=</span><span class="n">waited</span><span class="p">,</span>
+                               <span class="n">original</span><span class="o">=</span><span class="n">original</span><span class="p">,</span>
+                               <span class="n">event</span><span class="o">=</span><span class="n">events</span><span class="p">,</span>
+                               <span class="n">extent</span><span class="o">=</span><span class="n">extents</span><span class="p">,</span>
+                               <span class="n">kind</span><span class="o">=</span><span class="n">kinds</span><span class="p">))</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s">&#39;time&#39;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">reindex_axis</span><span class="p">(</span><span class="s">&#39;waited original event kind extent&#39;</span><span class="o">.</span><span class="n">split</span><span class="p">(),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </div></div>
 <div class="viewcode-block" id="Output"><a class="viewcode-back" href="../../index.html#stochdiff.output.Output">[docs]</a><span class="k">class</span> <span class="nc">Output</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The output for a single model, 0 or more experiments</span>
@@ -289,7 +333,13 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="n">tables</span><span class="o">.</span><span class="n">openFile</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">trial0</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Output.simulation"><a class="viewcode-back" href="../../index.html#stochdiff.output.Output.simulation">[docs]</a>    <span class="k">def</span> <span class="nf">simulation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get simulation by number</span>
@@ -302,14 +352,17 @@
 <span class="sd">        &lt;Element {http://stochdiff.textensor.org}SDRun at 0x...&gt;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">trial</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">get_node</span><span class="p">(</span><span class="s">&#39;/trial{}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">num</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">Simulation</span><span class="p">(</span><span class="n">trial</span><span class="o">.</span><span class="n">simulation</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Simulation</span><span class="p">(</span><span class="n">trial</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
 </div>
+    <span class="nd">@functools.lru_cache</span><span class="p">()</span>
 <div class="viewcode-block" id="Output.simulations"><a class="viewcode-back" href="../../index.html#stochdiff.output.Output.simulations">[docs]</a>    <span class="k">def</span> <span class="nf">simulations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">trials</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">list_nodes</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
-        <span class="n">sims</span> <span class="o">=</span> <span class="p">[</span><span class="n">Simulation</span><span class="p">(</span><span class="n">trial</span><span class="o">.</span><span class="n">simulation</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span> <span class="k">for</span> <span class="n">trial</span> <span class="ow">in</span> <span class="n">trials</span><span class="p">]</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">list_nodes</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+        <span class="n">sims</span> <span class="o">=</span> <span class="p">[</span><span class="n">Simulation</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span>
+                <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">_v_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;trial&#39;</span><span class="p">)]</span>
         <span class="n">sims</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">attrgetter</span><span class="p">(</span><span class="s">&#39;number&#39;</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">sims</span>
 </div>
+    <span class="nd">@functools.lru_cache</span><span class="p">()</span>
 <div class="viewcode-block" id="Output.counts"><a class="viewcode-back" href="../../index.html#stochdiff.output.Output.counts">[docs]</a>    <span class="k">def</span> <span class="nf">counts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Aggregated table of particle counts</span>
 
@@ -347,6 +400,7 @@
         <span class="n">frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="n">series</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">frame</span>
 </div>
+    <span class="nd">@functools.lru_cache</span><span class="p">()</span>
 <div class="viewcode-block" id="Output.concentrations"><a class="viewcode-back" href="../../index.html#stochdiff.output.Output.concentrations">[docs]</a>    <span class="k">def</span> <span class="nf">concentrations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Counts converted to concentrations using voxel volumes</span>
 
@@ -364,7 +418,15 @@
         <span class="n">volumes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span><span class="o">.</span><span class="n">volume</span>
         <span class="n">ans</span> <span class="o">=</span> <span class="n">counts</span> <span class="o">/</span> <span class="n">volumes</span> <span class="o">/</span> <span class="n">PUVC</span>
         <span class="n">ans</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;count&#39;</span><span class="p">:</span><span class="s">&#39;concentration&#39;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">ans</span></div></div>
+        <span class="k">return</span> <span class="n">ans</span>
+</div>
+    <span class="nd">@functools.lru_cache</span><span class="p">()</span>
+<div class="viewcode-block" id="Output.events"><a class="viewcode-back" href="../../index.html#stochdiff.output.Output.events">[docs]</a>    <span class="k">def</span> <span class="nf">events</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s">&quot;A log of events from all simulations&quot;</span>
+        <span class="n">sims</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulations</span><span class="p">()</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">sim</span><span class="o">.</span><span class="n">events</span><span class="p">())</span>
+                    <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">sim</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sims</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div></div>
 </pre></div>
 
           </div>
@@ -404,7 +466,7 @@
     </div>
     <div class="footer">
         &copy; Copyright .
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
     </div>
   </body>
 </html>
