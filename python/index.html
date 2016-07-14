@@ -6,9 +6,9 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Stochdiff.output module &mdash; StochDiff 0.0 documentation</title>
+    <title>neurord.output module &mdash; NeuroRD 0.0 documentation</title>
     
-    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -23,11 +23,11 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="StochDiff 0.0 documentation" href="#" /> 
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="NeuroRD 0.0 documentation" href="#" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -36,19 +36,20 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="#">StochDiff 0.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="#">NeuroRD 0.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
-  <div class="section" id="module-stochdiff.output">
-<span id="stochdiff-output-module"></span><h1>Stochdiff.output module<a class="headerlink" href="#module-stochdiff.output" title="Permalink to this headline">¶</a></h1>
-<p>Wrapper which makes reading stochdiff HDF5 output easier to use</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="s">&#39;model.h5&#39;</span><span class="p">)</span>
+  <div class="section" id="module-neurord.output">
+<span id="neurord-output-module"></span><h1>neurord.output module<a class="headerlink" href="#module-neurord.output" title="Permalink to this headline">¶</a></h1>
+<p>Wrapper which makes reading neurord HDF5 output easier to use</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">neurord.output</span> <span class="k">import</span> <span class="n">Output</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="s1">&#39;model.h5&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Units: concentrations are expressed in nM and volumes in cubic microns.
@@ -60,126 +61,159 @@ The conversion factor between concentrations and particle number is therefore</p
 <div class="math">
 \[c = N / 0.6022… / V\]</div>
 <dl class="data">
-<dt id="stochdiff.output.AVOGADRO">
-<tt class="descclassname">stochdiff.output.</tt><tt class="descname">AVOGADRO</tt><em class="property"> = 6.02214179</em><a class="headerlink" href="#stochdiff.output.AVOGADRO" title="Permalink to this definition">¶</a></dt>
+<dt id="neurord.output.AVOGADRO">
+<code class="descclassname">neurord.output.</code><code class="descname">AVOGADRO</code><em class="property"> = 6.02214179</em><a class="headerlink" href="#neurord.output.AVOGADRO" title="Permalink to this definition">¶</a></dt>
 <dd><p>Avogadro constant from CODATA 2006</p>
 </dd></dl>
 
 <dl class="data">
-<dt id="stochdiff.output.PUVC">
-<tt class="descclassname">stochdiff.output.</tt><tt class="descname">PUVC</tt><em class="property"> = 0.602214179</em><a class="headerlink" href="#stochdiff.output.PUVC" title="Permalink to this definition">¶</a></dt>
+<dt id="neurord.output.PUVC">
+<code class="descclassname">neurord.output.</code><code class="descname">PUVC</code><em class="property"> = 0.602214179</em><a class="headerlink" href="#neurord.output.PUVC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Converts concentrations to particle numbers</p>
 </dd></dl>
 
+<dl class="function">
+<dt id="neurord.output.decode_species_names">
+<code class="descclassname">neurord.output.</code><code class="descname">decode_species_names</code><span class="sig-paren">(</span><em>array</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#decode_species_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.decode_species_names" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="class">
-<dt id="stochdiff.output.EventType">
-<em class="property">class </em><tt class="descclassname">stochdiff.output.</tt><tt class="descname">EventType</tt><a class="reference internal" href="_modules/stochdiff/output.html#EventType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.EventType" title="Permalink to this definition">¶</a></dt>
+<dt id="neurord.output.EventType">
+<em class="property">class </em><code class="descclassname">neurord.output.</code><code class="descname">EventType</code><a class="reference internal" href="_modules/neurord/output.html#EventType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.EventType" title="Permalink to this definition">¶</a></dt>
 <dd><p>Event types matching IGridCalc.EventType enumeration</p>
+<dl class="attribute">
+<dt id="neurord.output.EventType.REACTION">
+<code class="descname">REACTION</code><em class="property"> = &lt;EventType.REACTION: 0&gt;</em><a class="headerlink" href="#neurord.output.EventType.REACTION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="neurord.output.EventType.DIFFUSION">
+<code class="descname">DIFFUSION</code><em class="property"> = &lt;EventType.DIFFUSION: 1&gt;</em><a class="headerlink" href="#neurord.output.EventType.DIFFUSION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="neurord.output.EventType.STIMULATION">
+<code class="descname">STIMULATION</code><em class="property"> = &lt;EventType.STIMULATION: 2&gt;</em><a class="headerlink" href="#neurord.output.EventType.STIMULATION" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
-<dt id="stochdiff.output.EventKind">
-<em class="property">class </em><tt class="descclassname">stochdiff.output.</tt><tt class="descname">EventKind</tt><a class="reference internal" href="_modules/stochdiff/output.html#EventKind"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.EventKind" title="Permalink to this definition">¶</a></dt>
+<dt id="neurord.output.EventKind">
+<em class="property">class </em><code class="descclassname">neurord.output.</code><code class="descname">EventKind</code><a class="reference internal" href="_modules/neurord/output.html#EventKind"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.EventKind" title="Permalink to this definition">¶</a></dt>
 <dd><p>Event types matching IGridCalc.EventKind enumeration</p>
+<dl class="attribute">
+<dt id="neurord.output.EventKind.EXACT">
+<code class="descname">EXACT</code><em class="property"> = &lt;EventKind.EXACT: 0&gt;</em><a class="headerlink" href="#neurord.output.EventKind.EXACT" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="neurord.output.EventKind.LEAP">
+<code class="descname">LEAP</code><em class="property"> = &lt;EventKind.LEAP: 1&gt;</em><a class="headerlink" href="#neurord.output.EventKind.LEAP" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="class">
-<dt id="stochdiff.output.Dependencies">
-<em class="property">class </em><tt class="descclassname">stochdiff.output.</tt><tt class="descname">Dependencies</tt><big>(</big><em>element</em><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Dependencies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Dependencies" title="Permalink to this definition">¶</a></dt>
+<dt id="neurord.output.Dependencies">
+<em class="property">class </em><code class="descclassname">neurord.output.</code><code class="descname">Dependencies</code><span class="sig-paren">(</span><em>element</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#Dependencies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.Dependencies" title="Permalink to this definition">¶</a></dt>
 <dd><p>Raw information about the dependency graph</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="s">&#39;model.h5&#39;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="s1">&#39;model.h5&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">deps</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">dependencies</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">dep</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">deps</span><span class="o">.</span><span class="n">types</span><span class="p">(),</span>
 <span class="gp">... </span>                        <span class="n">deps</span><span class="o">.</span><span class="n">elements</span><span class="p">(),</span>
 <span class="gp">... </span>                        <span class="n">deps</span><span class="o">.</span><span class="n">descriptions</span><span class="p">(),</span>
 <span class="gp">... </span>                        <span class="n">deps</span><span class="o">.</span><span class="n">dependent</span><span class="p">()):</span>
-<span class="gp">... </span>    <span class="k">print</span><span class="p">(</span><span class="s">&#39;type {} in voxel {} &quot;{}&quot; dependent: {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">dep</span><span class="p">))</span>
-<span class="go">type 0 in voxel 0 &quot;NextReaction el.0 A→n&quot; dependent: []</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;type </span><span class="si">{}</span><span class="s1"> in voxel </span><span class="si">{}</span><span class="s1"> &quot;</span><span class="si">{}</span><span class="s1">&quot; dependent: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">dep</span><span class="p">))</span>
+<span class="go">type 0 in voxel 0 &quot;NextReaction el.0 A+B→C&quot; dependent: [1]</span>
+<span class="go">type 0 in voxel 0 &quot;NextReaction el.0 2×C→D&quot; dependent: [2]</span>
+<span class="go">type 0 in voxel 0 &quot;NextReaction el.0 D→2×C&quot; dependent: [1]</span>
+<span class="go">type 2 in voxel 0 &quot;NextStimulation el.0 B&quot; dependent: [0]</span>
 </pre></div>
 </div>
 <dl class="method">
-<dt id="stochdiff.output.Dependencies.indices">
-<tt class="descname">indices</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Dependencies.indices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Dependencies.indices" title="Permalink to this definition">¶</a></dt>
+<dt id="neurord.output.Dependencies.indices">
+<code class="descname">indices</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#Dependencies.indices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.Dependencies.indices" title="Permalink to this definition">¶</a></dt>
 <dd><p>Numbers of the elements</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="stochdiff.output.Dependencies.descriptions">
-<tt class="descname">descriptions</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Dependencies.descriptions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Dependencies.descriptions" title="Permalink to this definition">¶</a></dt>
+<dt id="neurord.output.Dependencies.descriptions">
+<code class="descname">descriptions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#Dependencies.descriptions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.Dependencies.descriptions" title="Permalink to this definition">¶</a></dt>
 <dd><p>A generator of descriptions of nodes (by index)</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="stochdiff.output.Dependencies.elements">
-<tt class="descname">elements</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Dependencies.elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Dependencies.elements" title="Permalink to this definition">¶</a></dt>
+<dt id="neurord.output.Dependencies.elements">
+<code class="descname">elements</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#Dependencies.elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.Dependencies.elements" title="Permalink to this definition">¶</a></dt>
 <dd><p>The numbers of voxels events are attached to</p>
 <p>In case of diffusion, those are the originating voxels.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="stochdiff.output.Dependencies.types">
-<tt class="descname">types</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Dependencies.types"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Dependencies.types" title="Permalink to this definition">¶</a></dt>
+<dt id="neurord.output.Dependencies.types">
+<code class="descname">types</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#Dependencies.types"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.Dependencies.types" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="stochdiff.output.Dependencies.dependent">
-<tt class="descname">dependent</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Dependencies.dependent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Dependencies.dependent" title="Permalink to this definition">¶</a></dt>
+<dt id="neurord.output.Dependencies.dependent">
+<code class="descname">dependent</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#Dependencies.dependent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.Dependencies.dependent" title="Permalink to this definition">¶</a></dt>
 <dd><p>A generator of lists of dependent nodes (by index)</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="class">
-<dt id="stochdiff.output.Reactions">
-<em class="property">class </em><tt class="descclassname">stochdiff.output.</tt><tt class="descname">Reactions</tt><big>(</big><em>element</em><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Reactions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Reactions" title="Permalink to this definition">¶</a></dt>
+<dt id="neurord.output.Reactions">
+<em class="property">class </em><code class="descclassname">neurord.output.</code><code class="descname">Reactions</code><span class="sig-paren">(</span><em>element</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#Reactions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.Reactions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Raw information about reactions</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="s">&#39;model.h5&#39;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="s1">&#39;model.h5&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">reactions</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">reactions</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">reactions</span><span class="o">.</span><span class="n">reactants</span><span class="p">())</span>
-<span class="go">[[0]]</span>
+<span class="go">[[0, 1], [2], [3]]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">reactions</span><span class="o">.</span><span class="n">reactant_stoichiometry</span><span class="p">())</span>
-<span class="go">[[1]]</span>
+<span class="go">[[1, 1], [2], [1]]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">reactions</span><span class="o">.</span><span class="n">products</span><span class="p">())</span>
-<span class="go">[[]]</span>
+<span class="go">[[2], [3], [2]]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">reactions</span><span class="o">.</span><span class="n">product_stoichiometry</span><span class="p">())</span>
-<span class="go">[[]]</span>
+<span class="go">[[1], [1], [2]]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">list</span><span class="p">(</span><span class="n">reactions</span><span class="o">.</span><span class="n">rates</span><span class="p">())</span>
-<span class="go">[0.002]</span>
+<span class="go">[1.0000000000000001e-05, 9.9999999999999995e-07, 1.0000000000000001e-05]</span>
 </pre></div>
 </div>
 <dl class="method">
-<dt id="stochdiff.output.Reactions.reactants">
-<tt class="descname">reactants</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Reactions.reactants"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Reactions.reactants" title="Permalink to this definition">¶</a></dt>
+<dt id="neurord.output.Reactions.reactants">
+<code class="descname">reactants</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#Reactions.reactants"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.Reactions.reactants" title="Permalink to this definition">¶</a></dt>
 <dd><p>A generator of lists of reactants (by index)</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="stochdiff.output.Reactions.reactant_stoichiometry">
-<tt class="descname">reactant_stoichiometry</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Reactions.reactant_stoichiometry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Reactions.reactant_stoichiometry" title="Permalink to this definition">¶</a></dt>
+<dt id="neurord.output.Reactions.reactant_stoichiometry">
+<code class="descname">reactant_stoichiometry</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#Reactions.reactant_stoichiometry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.Reactions.reactant_stoichiometry" title="Permalink to this definition">¶</a></dt>
 <dd><p>A generator of lists of stoichiometries (by index)</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="stochdiff.output.Reactions.products">
-<tt class="descname">products</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Reactions.products"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Reactions.products" title="Permalink to this definition">¶</a></dt>
+<dt id="neurord.output.Reactions.products">
+<code class="descname">products</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#Reactions.products"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.Reactions.products" title="Permalink to this definition">¶</a></dt>
 <dd><p>A generator of lists of products (by index)</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="stochdiff.output.Reactions.product_stoichiometry">
-<tt class="descname">product_stoichiometry</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Reactions.product_stoichiometry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Reactions.product_stoichiometry" title="Permalink to this definition">¶</a></dt>
+<dt id="neurord.output.Reactions.product_stoichiometry">
+<code class="descname">product_stoichiometry</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#Reactions.product_stoichiometry"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.Reactions.product_stoichiometry" title="Permalink to this definition">¶</a></dt>
 <dd><p>A generator of lists of stoichiometries (by index)</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="stochdiff.output.Reactions.rates">
-<tt class="descname">rates</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Reactions.rates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Reactions.rates" title="Permalink to this definition">¶</a></dt>
+<dt id="neurord.output.Reactions.rates">
+<code class="descname">rates</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#Reactions.rates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.Reactions.rates" title="Permalink to this definition">¶</a></dt>
 <dd><p>Rates of the reactions</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="stochdiff.output.Reactions.reversible_pairs">
-<tt class="descname">reversible_pairs</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Reactions.reversible_pairs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Reactions.reversible_pairs" title="Permalink to this definition">¶</a></dt>
+<dt id="neurord.output.Reactions.reversible_pairs">
+<code class="descname">reversible_pairs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#Reactions.reversible_pairs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.Reactions.reversible_pairs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Mapping to reverse reactions</p>
 <p>For reaction i which has a reverse reaction, reversible_pairs()[i]
 gives the index of the reverse reaction. Reactions which do not have
@@ -189,126 +223,197 @@ a reverse are not included.</p>
 </dd></dl>
 
 <dl class="class">
-<dt id="stochdiff.output.Model">
-<em class="property">class </em><tt class="descclassname">stochdiff.output.</tt><tt class="descname">Model</tt><big>(</big><em>element</em><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Model" title="Permalink to this definition">¶</a></dt>
+<dt id="neurord.output.Model">
+<em class="property">class </em><code class="descclassname">neurord.output.</code><code class="descname">Model</code><span class="sig-paren">(</span><em>element</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#Model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.Model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Information about the model, same for all trials</p>
 <dl class="method">
-<dt id="stochdiff.output.Model.species">
-<tt class="descname">species</tt><big>(</big><em>indices=None</em><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Model.species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Model.species" title="Permalink to this definition">¶</a></dt>
+<dt id="neurord.output.Model.species">
+<code class="descname">species</code><span class="sig-paren">(</span><em>indices=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#Model.species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.Model.species" title="Permalink to this definition">¶</a></dt>
 <dd><p>List of specie names</p>
 <p>Species are order the same as in other tables, so this table can be used to map species
 indices to actual names.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="s">&#39;model.h5&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">species</span>
-<span class="go">[&#39;A&#39;]</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="s1">&#39;model.h5&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">species</span><span class="p">()</span>
+<span class="go">[&#39;A&#39;, &#39;B&#39;, &#39;C&#39;, &#39;D&#39;]</span>
 </pre></div>
 </div>
 </dd></dl>
 
 <dl class="method">
-<dt id="stochdiff.output.Model.grid">
-<tt class="descname">grid</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Model.grid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Model.grid" title="Permalink to this definition">¶</a></dt>
+<dt id="neurord.output.Model.grid">
+<code class="descname">grid</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#Model.grid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.Model.grid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Voxels of the simulation</p>
 <p>Returns an recarray containing points defining the voxels and their volumes and regions.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="s">&#39;model.h5&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="s1">&#39;model.h5&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">model</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">grid</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">textwrap</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">names</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">textwrap</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">names</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mi">40</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">textwrap</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">names</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mi">40</span><span class="p">))</span>
 <span class="go">x0 y0 z0 x1 y1 z1 x2 y2 z2 x3 y3 z3</span>
 <span class="go">volume deltaZ label region type group</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">grid</span><span class="o">.</span><span class="n">volume</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">grid</span><span class="o">.</span><span class="n">volume</span>
 <span class="go">array([ 2.])</span>
 </pre></div>
 </div>
 </dd></dl>
 
 <dl class="method">
-<dt id="stochdiff.output.Model.element_regions">
-<tt class="descname">element_regions</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Model.element_regions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Model.element_regions" title="Permalink to this definition">¶</a></dt>
+<dt id="neurord.output.Model.element_regions">
+<code class="descname">element_regions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#Model.element_regions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.Model.element_regions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Names of regions of elements (by index)</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="stochdiff.output.Model.indices">
-<tt class="descname">indices</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Model.indices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Model.indices" title="Permalink to this definition">¶</a></dt>
+<dt id="neurord.output.Model.indices">
+<code class="descname">indices</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#Model.indices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.Model.indices" title="Permalink to this definition">¶</a></dt>
 <dd><p>Numbers of the elements</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="stochdiff.output.Model.neighbors">
-<tt class="descname">neighbors</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Model.neighbors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Model.neighbors" title="Permalink to this definition">¶</a></dt>
+<dt id="neurord.output.Model.neighbors">
+<code class="descname">neighbors</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#Model.neighbors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.Model.neighbors" title="Permalink to this definition">¶</a></dt>
 <dd><p>A generator of lists of neighboring nodes (by index)</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="stochdiff.output.Model.couplings">
-<tt class="descname">couplings</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Model.couplings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Model.couplings" title="Permalink to this definition">¶</a></dt>
+<dt id="neurord.output.Model.couplings">
+<code class="descname">couplings</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#Model.couplings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.Model.couplings" title="Permalink to this definition">¶</a></dt>
 <dd><p>A generator of coupling strengths to neighboring nodes (by index)</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="stochdiff.output.Model.region_names">
-<tt class="descname">region_names</tt><big>(</big><em>indices=None</em><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Model.region_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Model.region_names" title="Permalink to this definition">¶</a></dt>
+<dt id="neurord.output.Model.region_names">
+<code class="descname">region_names</code><span class="sig-paren">(</span><em>indices=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#Model.region_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.Model.region_names" title="Permalink to this definition">¶</a></dt>
 <dd><p>Region names (by index)</p>
 </dd></dl>
+
+<dl class="method">
+<dt id="neurord.output.Model.output_group">
+<code class="descname">output_group</code><span class="sig-paren">(</span><em>name='__main__'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#Model.output_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.Model.output_group" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
 <dl class="class">
-<dt id="stochdiff.output.Simulation">
-<em class="property">class </em><tt class="descclassname">stochdiff.output.</tt><tt class="descname">Simulation</tt><big>(</big><em>element</em>, <em>model</em><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Simulation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Simulation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Information about the results of a trial</p>
-<dl class="method">
-<dt id="stochdiff.output.Simulation.times">
-<tt class="descname">times</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Simulation.times"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Simulation.times" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="stochdiff.output.Simulation.counts">
-<tt class="descname">counts</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Simulation.counts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Simulation.counts" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="stochdiff.output.Simulation.concentrations">
-<tt class="descname">concentrations</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Simulation.concentrations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Simulation.concentrations" title="Permalink to this definition">¶</a></dt>
-<dd><p>Counts converted to concentrations using voxel volumes</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="stochdiff.output.Simulation.config">
-<tt class="descname">config</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Simulation.config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Simulation.config" title="Permalink to this definition">¶</a></dt>
-<dd><p>lxml etree of de-serialized config the simulation was run with</p>
-<p>Accessing serialized config</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="s">&#39;model.h5&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">xml</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">simulation</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">config</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">xml</span>
-<span class="go">&lt;Element {http://stochdiff.textensor.org}SDRun at 0x...&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">xml</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#39;./ns:geometry&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;ns&#39;</span><span class="p">:</span><span class="s">&#39;http://stochdiff.textensor.org&#39;</span><span class="p">})</span><span class="o">.</span><span class="n">text</span>
-<span class="go">2D</span>
+<dt id="neurord.output.ModelOutputGroup">
+<em class="property">class </em><code class="descclassname">neurord.output.</code><code class="descname">ModelOutputGroup</code><span class="sig-paren">(</span><em>element</em>, <em>model</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#ModelOutputGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.ModelOutputGroup" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="neurord.output.ModelOutputGroup.species">
+<code class="descname">species</code><span class="sig-paren">(</span><em>indices=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#ModelOutputGroup.species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.ModelOutputGroup.species" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of species in this output group</p>
+<p>Species are ordered the same as in other output tables, so this table can be
+used to map species indices to actual names.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">output_model</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="s1">&#39;model.h5&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">output_group</span><span class="p">(</span><span class="s1">&#39;__main__&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output_model</span><span class="o">.</span><span class="n">species</span><span class="p">()</span>
+<span class="go">[&#39;A&#39;, &#39;B&#39;, &#39;C&#39;, &#39;D&#39;]</span>
 </pre></div>
 </div>
 </dd></dl>
 
 <dl class="method">
-<dt id="stochdiff.output.Simulation.events">
-<tt class="descname">events</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Simulation.events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Simulation.events" title="Permalink to this definition">¶</a></dt>
+<dt id="neurord.output.ModelOutputGroup.elements">
+<code class="descname">elements</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#ModelOutputGroup.elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.ModelOutputGroup.elements" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of element indices in this output group</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="neurord.output.ModelOutputGroup.volumes">
+<code class="descname">volumes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#ModelOutputGroup.volumes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.ModelOutputGroup.volumes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Volumes of elements in this output group</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="neurord.output.OutputGroup">
+<em class="property">class </em><code class="descclassname">neurord.output.</code><code class="descname">OutputGroup</code><span class="sig-paren">(</span><em>element</em>, <em>output_model</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#OutputGroup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.OutputGroup" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="neurord.output.OutputGroup.times">
+<code class="descname">times</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#OutputGroup.times"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.OutputGroup.times" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="neurord.output.OutputGroup.counts">
+<code class="descname">counts</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#OutputGroup.counts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.OutputGroup.counts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="neurord.output.OutputGroup.concentrations">
+<code class="descname">concentrations</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#OutputGroup.concentrations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.OutputGroup.concentrations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Counts converted to concentrations using voxel volumes</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="neurord.output.OutputGroup.species">
+<code class="descname">species</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#OutputGroup.species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.OutputGroup.species" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of specie names present in this output group</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="neurord.output.Simulation">
+<em class="property">class </em><code class="descclassname">neurord.output.</code><code class="descname">Simulation</code><span class="sig-paren">(</span><em>element</em>, <em>model</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#Simulation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.Simulation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Information about the results of a trial</p>
+<dl class="method">
+<dt id="neurord.output.Simulation.config">
+<code class="descname">config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#Simulation.config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.Simulation.config" title="Permalink to this definition">¶</a></dt>
+<dd><p>lxml etree of de-serialized config the simulation was run with</p>
+<p>Accessing serialized config</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="s1">&#39;model.h5&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">xml</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">simulation</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">config</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">xml</span>
+<span class="go">&lt;Element {http://stochdiff.textensor.org}SDRun at 0x...&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">xml</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;./ns:geometry&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;ns&#39;</span><span class="p">:</span><span class="s1">&#39;http://stochdiff.textensor.org&#39;</span><span class="p">})</span><span class="o">.</span><span class="n">text</span>
+<span class="go">&#39;2D&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="neurord.output.Simulation.output_group">
+<code class="descname">output_group</code><a class="reference internal" href="_modules/neurord/output.html#Simulation.output_group"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.Simulation.output_group" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="neurord.output.Simulation.times">
+<code class="descname">times</code><span class="sig-paren">(</span><em>output_group='__main__'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#Simulation.times"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.Simulation.times" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="neurord.output.Simulation.counts">
+<code class="descname">counts</code><span class="sig-paren">(</span><em>output_group='__main__'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#Simulation.counts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.Simulation.counts" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="neurord.output.Simulation.concentrations">
+<code class="descname">concentrations</code><span class="sig-paren">(</span><em>output_group='__main__'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#Simulation.concentrations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.Simulation.concentrations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="neurord.output.Simulation.events">
+<code class="descname">events</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#Simulation.events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.Simulation.events" title="Permalink to this definition">¶</a></dt>
 <dd><p>A full history of events</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="class">
-<dt id="stochdiff.output.Output">
-<em class="property">class </em><tt class="descclassname">stochdiff.output.</tt><tt class="descname">Output</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Output" title="Permalink to this definition">¶</a></dt>
+<dt id="neurord.output.Output">
+<em class="property">class </em><code class="descclassname">neurord.output.</code><code class="descname">Output</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#Output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.Output" title="Permalink to this definition">¶</a></dt>
 <dd><p>The output for a single model, 0 or more experiments</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="s">&#39;model.h5&#39;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="s1">&#39;model.h5&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <dl class="method">
-<dt id="stochdiff.output.Output.simulation">
-<tt class="descname">simulation</tt><big>(</big><em>num</em><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Output.simulation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Output.simulation" title="Permalink to this definition">¶</a></dt>
+<dt id="neurord.output.Output.simulation">
+<code class="descname">simulation</code><span class="sig-paren">(</span><em>num</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/neurord/output.html#Output.simulation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.Output.simulation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get simulation by number</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="s">&#39;model.h5&#39;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="s1">&#39;model.h5&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sim</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">simulation</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">sim</span><span class="o">.</span><span class="n">number</span>
 <span class="go">0</span>
@@ -318,63 +423,64 @@ indices to actual names.</p>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="stochdiff.output.Output.simulations">
-<tt class="descname">simulations</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Output.simulations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Output.simulations" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="neurord.output.Output.simulations">
+<code class="descname">simulations</code><a class="reference internal" href="_modules/neurord/output.html#Output.simulations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.Output.simulations" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="method">
-<dt id="stochdiff.output.Output.counts">
-<tt class="descname">counts</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Output.counts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Output.counts" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="neurord.output.Output.counts">
+<code class="descname">counts</code><a class="reference internal" href="_modules/neurord/output.html#Output.counts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.Output.counts" title="Permalink to this definition">¶</a></dt>
 <dd><p>Aggregated table of particle counts</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="s">&#39;model.h5&#39;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="s1">&#39;model.h5&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">counts</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">counts</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">counts</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-<span class="go">                           count</span>
-<span class="go">voxel time specie trial</span>
-<span class="go">0     0    A      0      1204428</span>
+<span class="go">                         count</span>
+<span class="go">voxel time specie trial       </span>
+<span class="go">0     0    A      0       1265</span>
 </pre></div>
 </div>
 <p>Calculate average over trials</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">gb</span> <span class="o">=</span> <span class="n">counts</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s">&#39;voxel time  specie&#39;</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">gb</span> <span class="o">=</span> <span class="n">counts</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s1">&#39;voxel time  specie&#39;</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">gb</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-<span class="go">                            count</span>
-<span class="go">voxel time specie</span>
-<span class="go">0     0    A       1204428.433333</span>
+<span class="go">                     count</span>
+<span class="go">voxel time specie         </span>
+<span class="go">0     0    A       1264.67</span>
 </pre></div>
 </div>
 <p>Calculate mean and standard deviation</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">gb</span><span class="o">.</span><span class="n">aggregate</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">])</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-<span class="go">                            count</span>
-<span class="go">                             mean         std</span>
-<span class="go">voxel time specie</span>
-<span class="go">0     0    A       1204428.433333    0.504007</span>
-<span class="go">      5    A       1192430.800000  123.919440</span>
-<span class="go">      10   A       1180586.466667  179.969870</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gb</span><span class="o">.</span><span class="n">aggregate</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">])</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">                     count          </span>
+<span class="go">                      mean       std</span>
+<span class="go">voxel time specie                   </span>
+<span class="go">0     0    A       1264.67  0.472582</span>
+<span class="go">           B       1204.47  0.501614</span>
+<span class="go">           C          0.00  0.000000</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="stochdiff.output.Output.concentrations">
-<tt class="descname">concentrations</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Output.concentrations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Output.concentrations" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="neurord.output.Output.concentrations">
+<code class="descname">concentrations</code><a class="reference internal" href="_modules/neurord/output.html#Output.concentrations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.Output.concentrations" title="Permalink to this definition">¶</a></dt>
 <dd><p>Counts converted to concentrations using voxel volumes</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="s">&#39;model.h5&#39;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">out</span> <span class="o">=</span> <span class="n">Output</span><span class="p">(</span><span class="s1">&#39;model.h5&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">out</span><span class="o">.</span><span class="n">counts</span><span class="p">()</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-<span class="go">                           count</span>
-<span class="go">voxel time specie trial</span>
-<span class="go">0     0    A      0      1204428</span>
+<span class="go">                         count</span>
+<span class="go">voxel time specie trial       </span>
+<span class="go">0     0    A      0       1265</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">out</span><span class="o">.</span><span class="n">concentrations</span><span class="p">()</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 <span class="go">                         concentration</span>
-<span class="go">voxel time specie trial</span>
-<span class="go">0     0    A      0      999999.702764</span>
+<span class="go">voxel time specie trial               </span>
+<span class="go">0     0    A      0         1050.29078</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<dl class="method">
-<dt id="stochdiff.output.Output.events">
-<tt class="descname">events</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/stochdiff/output.html#Output.events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#stochdiff.output.Output.events" title="Permalink to this definition">¶</a></dt>
+<dl class="attribute">
+<dt id="neurord.output.Output.events">
+<code class="descname">events</code><a class="reference internal" href="_modules/neurord/output.html#Output.events"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#neurord.output.Output.events" title="Permalink to this definition">¶</a></dt>
 <dd><p>A log of events from all simulations</p>
 </dd></dl>
 
@@ -382,16 +488,20 @@ indices to actual names.</p>
 
 <div class="section" id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">stochdiff</span> <span class="kn">import</span> <span class="n">output</span>
-<span class="n">out</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">Output</span><span class="p">(</span><span class="s">&#39;model.h5&#39;</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">neurord</span> <span class="kn">import</span> <span class="n">output</span>
+
+<span class="n">out</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">Output</span><span class="p">(</span><span class="s1">&#39;model.h5&#39;</span><span class="p">)</span>
 <span class="n">counts</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">counts</span><span class="p">()</span>
-<span class="n">gb</span> <span class="o">=</span> <span class="n">counts</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s">&#39;voxel time  specie&#39;</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+<span class="n">gb</span> <span class="o">=</span> <span class="n">counts</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s1">&#39;voxel time  specie&#39;</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+
 <span class="k">def</span> <span class="nf">stdp3</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span>
 <span class="k">def</span> <span class="nf">stdm3</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span>
+
 <span class="n">data</span> <span class="o">=</span> <span class="n">gb</span><span class="o">.</span><span class="n">aggregate</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span> <span class="n">stdp3</span><span class="p">,</span> <span class="n">stdm3</span><span class="p">])</span>
 <span class="n">data</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -408,39 +518,38 @@ indices to actual names.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h3><a href="#">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Stochdiff.output module</a><ul>
+<li><a class="reference internal" href="#">neurord.output module</a><ul>
 <li><a class="reference internal" href="#examples">Examples</a></li>
 </ul>
 </li>
 </ul>
 
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/index.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -449,12 +558,12 @@ indices to actual names.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="#">StochDiff 0.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="#">NeuroRD 0.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer">
+    <div class="footer" role="contentinfo">
         &copy; Copyright .
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.4.
     </div>
   </body>
 </html>

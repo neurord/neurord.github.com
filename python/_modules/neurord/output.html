@@ -1,0 +1,541 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>neurord.output &mdash; NeuroRD 0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="NeuroRD 0.0 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">NeuroRD 0.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for neurord.output</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/python</span>
+<span class="c1"># -*- coding:utf-8 -*-</span>
+
+<span class="sd">r&quot;&quot;&quot;</span>
+<span class="sd">Wrapper which makes reading neurord HDF5 output easier to use</span>
+
+<span class="sd">&gt;&gt;&gt; from neurord.output import Output</span>
+<span class="sd">&gt;&gt;&gt; out = Output(&#39;model.h5&#39;)</span>
+
+<span class="sd">Units: concentrations are expressed in nM and volumes in cubic microns.</span>
+<span class="sd">So, in these units, one Litre is 10¹⁵ and a 1M solution is 10⁹.</span>
+<span class="sd">The conversion factor between concentrations and particle number is therefore</span>
+
+<span class="sd">.. math::</span>
+<span class="sd">    N = 6.022…\cdot10²³ \times V/10¹⁵ \times c/10⁹</span>
+
+<span class="sd">i.e.</span>
+
+<span class="sd">.. math ::</span>
+<span class="sd">    c = N / 0.6022… / V</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">operator</span>
+<span class="kn">import</span> <span class="nn">enum</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">tables</span>
+<span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">lxml</span> <span class="kn">import</span> <span class="n">etree</span>
+
+<span class="n">AVOGADRO</span> <span class="o">=</span> <span class="mf">6.02214179</span>
+<span class="sd">&quot;&quot;&quot;Avogadro constant from CODATA 2006&quot;&quot;&quot;</span>
+<span class="n">PUVC</span> <span class="o">=</span> <span class="n">AVOGADRO</span> <span class="o">/</span> <span class="mi">10</span>
+<span class="sd">&quot;&quot;&quot;Converts concentrations to particle numbers&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="decode_species_names"><a class="viewcode-back" href="../../index.html#neurord.output.decode_species_names">[docs]</a><span class="k">def</span> <span class="nf">decode_species_names</span><span class="p">(</span><span class="n">array</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">array</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EventType"><a class="viewcode-back" href="../../index.html#neurord.output.EventType">[docs]</a><span class="k">class</span> <span class="nc">EventType</span><span class="p">(</span><span class="n">enum</span><span class="o">.</span><span class="n">IntEnum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Event types matching IGridCalc.EventType enumeration&quot;&quot;&quot;</span>
+    <span class="n">REACTION</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">DIFFUSION</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">STIMULATION</span> <span class="o">=</span> <span class="mi">2</span></div>
+
+<div class="viewcode-block" id="EventKind"><a class="viewcode-back" href="../../index.html#neurord.output.EventKind">[docs]</a><span class="k">class</span> <span class="nc">EventKind</span><span class="p">(</span><span class="n">enum</span><span class="o">.</span><span class="n">IntEnum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Event types matching IGridCalc.EventKind enumeration&quot;&quot;&quot;</span>
+    <span class="n">EXACT</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">LEAP</span> <span class="o">=</span> <span class="mi">1</span></div>
+
+<div class="viewcode-block" id="Dependencies"><a class="viewcode-back" href="../../index.html#neurord.output.Dependencies">[docs]</a><span class="k">class</span> <span class="nc">Dependencies</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Raw information about the dependency graph</span>
+
+<span class="sd">    &gt;&gt;&gt; out = Output(&#39;model.h5&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; deps = out.model.dependencies</span>
+<span class="sd">    &gt;&gt;&gt; for t, e, d, dep in zip(deps.types(),</span>
+<span class="sd">    ...                         deps.elements(),</span>
+<span class="sd">    ...                         deps.descriptions(),</span>
+<span class="sd">    ...                         deps.dependent()):</span>
+<span class="sd">    ...     print(&#39;type {} in voxel {} &quot;{}&quot; dependent: {}&#39;.format(t, e, d, dep))</span>
+<span class="sd">    type 0 in voxel 0 &quot;NextReaction el.0 A+B→C&quot; dependent: [1]</span>
+<span class="sd">    type 0 in voxel 0 &quot;NextReaction el.0 2×C→D&quot; dependent: [2]</span>
+<span class="sd">    type 0 in voxel 0 &quot;NextReaction el.0 D→2×C&quot; dependent: [1]</span>
+<span class="sd">    type 2 in voxel 0 &quot;NextStimulation el.0 B&quot; dependent: [0]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_element</span> <span class="o">=</span> <span class="n">element</span>
+
+<div class="viewcode-block" id="Dependencies.indices"><a class="viewcode-back" href="../../index.html#neurord.output.Dependencies.indices">[docs]</a>    <span class="k">def</span> <span class="nf">indices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;Numbers of the elements&quot;</span>
+        <span class="k">return</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">descriptions</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="Dependencies.descriptions"><a class="viewcode-back" href="../../index.html#neurord.output.Dependencies.descriptions">[docs]</a>    <span class="k">def</span> <span class="nf">descriptions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;A generator of descriptions of nodes (by index)&quot;</span>
+        <span class="c1"># pytables bug?</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">descriptions</span><span class="p">[:]:</span>
+            <span class="k">yield</span> <span class="n">row</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Dependencies.elements"><a class="viewcode-back" href="../../index.html#neurord.output.Dependencies.elements">[docs]</a>    <span class="k">def</span> <span class="nf">elements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The numbers of voxels events are attached to</span>
+
+<span class="sd">        In case of diffusion, those are the originating voxels.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">elements</span></div>
+
+<div class="viewcode-block" id="Dependencies.types"><a class="viewcode-back" href="../../index.html#neurord.output.Dependencies.types">[docs]</a>    <span class="k">def</span> <span class="nf">types</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># pytables bug?</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">types</span><span class="p">[:]:</span>
+            <span class="k">yield</span> <span class="n">EventType</span><span class="p">(</span><span class="n">row</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Dependencies.dependent"><a class="viewcode-back" href="../../index.html#neurord.output.Dependencies.dependent">[docs]</a>    <span class="k">def</span> <span class="nf">dependent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;A generator of lists of dependent nodes (by index)&quot;</span>
+        <span class="c1"># pytables bug?</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">dependent</span><span class="p">[:]:</span>
+            <span class="k">yield</span> <span class="nb">list</span><span class="p">(</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">row</span> <span class="k">if</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="Reactions"><a class="viewcode-back" href="../../index.html#neurord.output.Reactions">[docs]</a><span class="k">class</span> <span class="nc">Reactions</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Raw information about reactions</span>
+
+<span class="sd">    &gt;&gt;&gt; out = Output(&#39;model.h5&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; reactions = out.model.reactions</span>
+<span class="sd">    &gt;&gt;&gt; list(reactions.reactants())</span>
+<span class="sd">    [[0, 1], [2], [3]]</span>
+<span class="sd">    &gt;&gt;&gt; list(reactions.reactant_stoichiometry())</span>
+<span class="sd">    [[1, 1], [2], [1]]</span>
+<span class="sd">    &gt;&gt;&gt; list(reactions.products())</span>
+<span class="sd">    [[2], [3], [2]]</span>
+<span class="sd">    &gt;&gt;&gt; list(reactions.product_stoichiometry())</span>
+<span class="sd">    [[1], [1], [2]]</span>
+<span class="sd">    &gt;&gt;&gt; list(reactions.rates())</span>
+<span class="sd">    [1.0000000000000001e-05, 9.9999999999999995e-07, 1.0000000000000001e-05]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_element</span> <span class="o">=</span> <span class="n">element</span>
+
+<div class="viewcode-block" id="Reactions.reactants"><a class="viewcode-back" href="../../index.html#neurord.output.Reactions.reactants">[docs]</a>    <span class="k">def</span> <span class="nf">reactants</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;A generator of lists of reactants (by index)&quot;</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">reactants</span><span class="p">[:]:</span>
+            <span class="k">yield</span> <span class="nb">list</span><span class="p">(</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">row</span> <span class="k">if</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Reactions.reactant_stoichiometry"><a class="viewcode-back" href="../../index.html#neurord.output.Reactions.reactant_stoichiometry">[docs]</a>    <span class="k">def</span> <span class="nf">reactant_stoichiometry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;A generator of lists of stoichiometries (by index)&quot;</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">reactant_stoichiometry</span><span class="p">[:]:</span>
+            <span class="k">yield</span> <span class="nb">list</span><span class="p">(</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">row</span> <span class="k">if</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Reactions.products"><a class="viewcode-back" href="../../index.html#neurord.output.Reactions.products">[docs]</a>    <span class="k">def</span> <span class="nf">products</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;A generator of lists of products (by index)&quot;</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">products</span><span class="p">[:]:</span>
+            <span class="k">yield</span> <span class="nb">list</span><span class="p">(</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">row</span> <span class="k">if</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Reactions.product_stoichiometry"><a class="viewcode-back" href="../../index.html#neurord.output.Reactions.product_stoichiometry">[docs]</a>    <span class="k">def</span> <span class="nf">product_stoichiometry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;A generator of lists of stoichiometries (by index)&quot;</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">product_stoichiometry</span><span class="p">[:]:</span>
+            <span class="k">yield</span> <span class="nb">list</span><span class="p">(</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">row</span> <span class="k">if</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Reactions.rates"><a class="viewcode-back" href="../../index.html#neurord.output.Reactions.rates">[docs]</a>    <span class="k">def</span> <span class="nf">rates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;Rates of the reactions&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">rates</span></div>
+
+<div class="viewcode-block" id="Reactions.reversible_pairs"><a class="viewcode-back" href="../../index.html#neurord.output.Reactions.reversible_pairs">[docs]</a>    <span class="k">def</span> <span class="nf">reversible_pairs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Mapping to reverse reactions</span>
+
+<span class="sd">        For reaction i which has a reverse reaction, reversible_pairs()[i]</span>
+<span class="sd">        gives the index of the reverse reaction. Reactions which do not have</span>
+<span class="sd">        a reverse are not included.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">reversible_pairs</span>
+        <span class="n">mapping</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span><span class="n">indices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">))</span>
+                   <span class="k">if</span> <span class="n">indices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">mapping</span></div></div>
+
+<div class="viewcode-block" id="Model"><a class="viewcode-back" href="../../index.html#neurord.output.Model">[docs]</a><span class="k">class</span> <span class="nc">Model</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Information about the model, same for all trials</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_element</span> <span class="o">=</span> <span class="n">element</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span> <span class="o">=</span> <span class="n">Dependencies</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">dependencies</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">tables</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">NoSuchNodeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dependencies</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reactions</span> <span class="o">=</span> <span class="n">Reactions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">reactions</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Model.species"><a class="viewcode-back" href="../../index.html#neurord.output.Model.species">[docs]</a>    <span class="k">def</span> <span class="nf">species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;List of specie names</span>
+
+<span class="sd">        Species are order the same as in other tables, so this table can be used to map species</span>
+<span class="sd">        indices to actual names.</span>
+
+<span class="sd">        &gt;&gt;&gt; model = Output(&#39;model.h5&#39;).model</span>
+<span class="sd">        &gt;&gt;&gt; model.species()</span>
+<span class="sd">        [&#39;A&#39;, &#39;B&#39;, &#39;C&#39;, &#39;D&#39;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">what</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span> <span class="k">if</span> <span class="n">indices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">species</span>
+        <span class="k">return</span> <span class="n">decode_species_names</span><span class="p">(</span><span class="n">what</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Model.grid"><a class="viewcode-back" href="../../index.html#neurord.output.Model.grid">[docs]</a>    <span class="k">def</span> <span class="nf">grid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Voxels of the simulation</span>
+
+<span class="sd">        Returns an recarray containing points defining the voxels and their volumes and regions.</span>
+
+<span class="sd">        &gt;&gt;&gt; model = Output(&#39;model.h5&#39;).model</span>
+<span class="sd">        &gt;&gt;&gt; grid = model.grid()</span>
+
+<span class="sd">        &gt;&gt;&gt; import textwrap</span>
+<span class="sd">        &gt;&gt;&gt; names = grid.dtype.names</span>
+<span class="sd">        &gt;&gt;&gt; print(textwrap.fill(&#39; &#39;.join(names), width=40))</span>
+<span class="sd">        x0 y0 z0 x1 y1 z1 x2 y2 z2 x3 y3 z3</span>
+<span class="sd">        volume deltaZ label region type group</span>
+
+<span class="sd">        &gt;&gt;&gt; grid.volume</span>
+<span class="sd">        array([ 2.])</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">recarray</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Model.element_regions"><a class="viewcode-back" href="../../index.html#neurord.output.Model.element_regions">[docs]</a>    <span class="k">def</span> <span class="nf">element_regions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;Names of regions of elements (by index)&quot;</span>
+        <span class="n">regions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">region_names</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">regions</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span><span class="o">.</span><span class="n">region</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Model.indices"><a class="viewcode-back" href="../../index.html#neurord.output.Model.indices">[docs]</a>    <span class="k">def</span> <span class="nf">indices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;Numbers of the elements&quot;</span>
+        <span class="k">return</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">grid</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="Model.neighbors"><a class="viewcode-back" href="../../index.html#neurord.output.Model.neighbors">[docs]</a>    <span class="k">def</span> <span class="nf">neighbors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;A generator of lists of neighboring nodes (by index)&quot;</span>
+        <span class="c1"># pytables bug?</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">neighbors</span><span class="p">[:]:</span>
+            <span class="k">yield</span> <span class="nb">list</span><span class="p">(</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">row</span> <span class="k">if</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Model.couplings"><a class="viewcode-back" href="../../index.html#neurord.output.Model.couplings">[docs]</a>    <span class="k">def</span> <span class="nf">couplings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;A generator of coupling strengths to neighboring nodes (by index)&quot;</span>
+        <span class="n">coupl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">couplings</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">neigh</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">neighbors</span><span class="p">()):</span>
+            <span class="k">yield</span> <span class="nb">list</span><span class="p">(</span><span class="n">coupl</span><span class="p">[</span><span class="n">i</span><span class="p">][:</span><span class="nb">len</span><span class="p">(</span><span class="n">neigh</span><span class="p">)])</span></div>
+
+<div class="viewcode-block" id="Model.region_names"><a class="viewcode-back" href="../../index.html#neurord.output.Model.region_names">[docs]</a>    <span class="k">def</span> <span class="nf">region_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="s2">&quot;Region names (by index)&quot;</span>
+        <span class="n">what</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">regions</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span> <span class="k">if</span> <span class="n">indices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">regions</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">row</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">what</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Model.output_group"><a class="viewcode-back" href="../../index.html#neurord.output.Model.output_group">[docs]</a>    <span class="k">def</span> <span class="nf">output_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;__main__&#39;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">ModelOutputGroup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">_v_children</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="bp">self</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="ModelOutputGroup"><a class="viewcode-back" href="../../index.html#neurord.output.ModelOutputGroup">[docs]</a><span class="k">class</span> <span class="nc">ModelOutputGroup</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_element</span> <span class="o">=</span> <span class="n">element</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">model</span>
+
+<div class="viewcode-block" id="ModelOutputGroup.species"><a class="viewcode-back" href="../../index.html#neurord.output.ModelOutputGroup.species">[docs]</a>    <span class="k">def</span> <span class="nf">species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;List of species in this output group</span>
+
+<span class="sd">        Species are ordered the same as in other output tables, so this table can be</span>
+<span class="sd">        used to map species indices to actual names.</span>
+
+<span class="sd">        &gt;&gt;&gt; output_model = Output(&#39;model.h5&#39;).model.output_group(&#39;__main__&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; output_model.species()</span>
+<span class="sd">        [&#39;A&#39;, &#39;B&#39;, &#39;C&#39;, &#39;D&#39;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">what</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">species</span><span class="p">[</span><span class="n">indices</span><span class="p">]</span> <span class="k">if</span> <span class="n">indices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">species</span>
+        <span class="k">return</span> <span class="n">decode_species_names</span><span class="p">(</span><span class="n">what</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ModelOutputGroup.elements"><a class="viewcode-back" href="../../index.html#neurord.output.ModelOutputGroup.elements">[docs]</a>    <span class="k">def</span> <span class="nf">elements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;List of element indices in this output group</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">elements</span><span class="p">[:]</span></div>
+
+<div class="viewcode-block" id="ModelOutputGroup.volumes"><a class="viewcode-back" href="../../index.html#neurord.output.ModelOutputGroup.volumes">[docs]</a>    <span class="k">def</span> <span class="nf">volumes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Volumes of elements in this output group</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">elements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">elements</span><span class="p">()</span>
+        <span class="n">grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+        <span class="n">volumes</span> <span class="o">=</span> <span class="n">grid</span><span class="p">[</span><span class="n">elements</span><span class="p">]</span><span class="o">.</span><span class="n">volume</span>
+        <span class="k">return</span> <span class="n">volumes</span></div></div>
+
+<div class="viewcode-block" id="OutputGroup"><a class="viewcode-back" href="../../index.html#neurord.output.OutputGroup">[docs]</a><span class="k">class</span> <span class="nc">OutputGroup</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">output_model</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_element</span> <span class="o">=</span> <span class="n">element</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_output_model</span> <span class="o">=</span> <span class="n">output_model</span>
+
+<div class="viewcode-block" id="OutputGroup.times"><a class="viewcode-back" href="../../index.html#neurord.output.OutputGroup.times">[docs]</a>    <span class="k">def</span> <span class="nf">times</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">times</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">times</span><span class="p">[:]</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="n">times</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">decimals</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">diff</span><span class="p">)),</span> <span class="mi">0</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="OutputGroup.counts"><a class="viewcode-back" href="../../index.html#neurord.output.OutputGroup.counts">[docs]</a>    <span class="k">def</span> <span class="nf">counts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">population</span>
+        <span class="n">panel</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Panel</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span>
+                         <span class="n">items</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">times</span><span class="p">(),</span>
+                         <span class="n">major_axis</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_output_model</span><span class="o">.</span><span class="n">elements</span><span class="p">(),</span>
+                         <span class="n">minor_axis</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">())</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span>
+        <span class="n">frame</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;voxel&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">frame</span></div>
+
+<div class="viewcode-block" id="OutputGroup.concentrations"><a class="viewcode-back" href="../../index.html#neurord.output.OutputGroup.concentrations">[docs]</a>    <span class="k">def</span> <span class="nf">concentrations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;Counts converted to concentrations using voxel volumes&quot;</span>
+        <span class="n">counts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">counts</span><span class="p">()</span>
+        <span class="n">volumes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_model</span><span class="o">.</span><span class="n">volumes</span><span class="p">()</span>
+        <span class="c1"># blow up volumes to match the size of the counts index</span>
+        <span class="n">volumes</span> <span class="o">*=</span> <span class="n">PUVC</span>
+        <span class="n">volumes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">volumes</span><span class="p">,</span> <span class="n">counts</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">size</span><span class="o">/</span><span class="n">volumes</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+        <span class="n">ans</span> <span class="o">=</span> <span class="n">counts</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">volumes</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">ans</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;count&#39;</span><span class="p">:</span><span class="s1">&#39;concentration&#39;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ans</span></div>
+
+<div class="viewcode-block" id="OutputGroup.species"><a class="viewcode-back" href="../../index.html#neurord.output.OutputGroup.species">[docs]</a>    <span class="k">def</span> <span class="nf">species</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;List of specie names present in this output group</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_output_model</span><span class="o">.</span><span class="n">species</span><span class="p">()</span></div></div>
+
+<div class="viewcode-block" id="Simulation"><a class="viewcode-back" href="../../index.html#neurord.output.Simulation">[docs]</a><span class="k">class</span> <span class="nc">Simulation</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Information about the results of a trial</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_element</span> <span class="o">=</span> <span class="n">element</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">_v_name</span><span class="p">[</span><span class="mi">5</span><span class="p">:])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+
+<div class="viewcode-block" id="Simulation.config"><a class="viewcode-back" href="../../index.html#neurord.output.Simulation.config">[docs]</a>    <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;lxml etree of de-serialized config the simulation was run with</span>
+
+<span class="sd">        Accessing serialized config</span>
+
+<span class="sd">        &gt;&gt;&gt; out = Output(&#39;model.h5&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; xml = out.simulation(0).config()</span>
+<span class="sd">        &gt;&gt;&gt; xml</span>
+<span class="sd">        &lt;Element {http://stochdiff.textensor.org}SDRun at 0x...&gt;</span>
+<span class="sd">        &gt;&gt;&gt; xml.find(&#39;./ns:geometry&#39;, {&#39;ns&#39;:&#39;http://stochdiff.textensor.org&#39;}).text</span>
+<span class="sd">        &#39;2D&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">xml</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">serialized_config</span>
+        <span class="c1"># FIXME: overwrite seed?</span>
+        <span class="k">return</span> <span class="n">etree</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">xml</span><span class="o">.</span><span class="n">read</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span></div>
+
+    <span class="nd">@functools.lru_cache</span><span class="p">()</span>
+<div class="viewcode-block" id="Simulation.output_group"><a class="viewcode-back" href="../../index.html#neurord.output.Simulation.output_group">[docs]</a>    <span class="k">def</span> <span class="nf">output_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;__main__&#39;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">OutputGroup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">_v_children</span><span class="p">[</span><span class="n">name</span><span class="p">],</span>
+                           <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">output_group</span><span class="p">(</span><span class="n">name</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Simulation.times"><a class="viewcode-back" href="../../index.html#neurord.output.Simulation.times">[docs]</a>    <span class="k">def</span> <span class="nf">times</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_group</span><span class="o">=</span><span class="s1">&#39;__main__&#39;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_group</span><span class="p">(</span><span class="n">output_group</span><span class="p">)</span><span class="o">.</span><span class="n">times</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Simulation.counts"><a class="viewcode-back" href="../../index.html#neurord.output.Simulation.counts">[docs]</a>    <span class="k">def</span> <span class="nf">counts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_group</span><span class="o">=</span><span class="s1">&#39;__main__&#39;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_group</span><span class="p">(</span><span class="n">output_group</span><span class="p">)</span><span class="o">.</span><span class="n">counts</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Simulation.concentrations"><a class="viewcode-back" href="../../index.html#neurord.output.Simulation.concentrations">[docs]</a>    <span class="k">def</span> <span class="nf">concentrations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_group</span><span class="o">=</span><span class="s1">&#39;__main__&#39;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_group</span><span class="p">(</span><span class="n">output_group</span><span class="p">)</span><span class="o">.</span><span class="n">concentrations</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Simulation.events"><a class="viewcode-back" href="../../index.html#neurord.output.Simulation.events">[docs]</a>    <span class="k">def</span> <span class="nf">events</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;A full history of events&quot;</span>
+        <span class="n">times</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">times</span><span class="p">[:]</span>
+        <span class="n">waited</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">waited</span><span class="p">[:]</span>
+        <span class="n">original</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">original_wait</span><span class="p">[:]</span>
+        <span class="n">events</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">events</span><span class="p">[:]</span>
+        <span class="n">extents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">extents</span><span class="p">[:]</span>
+        <span class="n">kinds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_element</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">kinds</span><span class="p">[:]</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">times</span><span class="p">,</span>
+                               <span class="n">waited</span><span class="o">=</span><span class="n">waited</span><span class="p">,</span>
+                               <span class="n">original</span><span class="o">=</span><span class="n">original</span><span class="p">,</span>
+                               <span class="n">event</span><span class="o">=</span><span class="n">events</span><span class="p">,</span>
+                               <span class="n">extent</span><span class="o">=</span><span class="n">extents</span><span class="p">,</span>
+                               <span class="n">kind</span><span class="o">=</span><span class="n">kinds</span><span class="p">))</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">reindex_axis</span><span class="p">(</span><span class="s1">&#39;waited original event kind extent&#39;</span><span class="o">.</span><span class="n">split</span><span class="p">(),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="Output"><a class="viewcode-back" href="../../index.html#neurord.output.Output">[docs]</a><span class="k">class</span> <span class="nc">Output</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The output for a single model, 0 or more experiments</span>
+
+<span class="sd">    &gt;&gt;&gt; out = Output(&#39;model.h5&#39;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="n">tables</span><span class="o">.</span><span class="n">openFile</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Output.simulation"><a class="viewcode-back" href="../../index.html#neurord.output.Output.simulation">[docs]</a>    <span class="k">def</span> <span class="nf">simulation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get simulation by number</span>
+
+<span class="sd">        &gt;&gt;&gt; out = Output(&#39;model.h5&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; sim = out.simulation(0)</span>
+<span class="sd">        &gt;&gt;&gt; sim.number</span>
+<span class="sd">        0</span>
+<span class="sd">        &gt;&gt;&gt; sim.config()</span>
+<span class="sd">        &lt;Element {http://stochdiff.textensor.org}SDRun at 0x...&gt;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">trial</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">get_node</span><span class="p">(</span><span class="s1">&#39;/trial{}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">num</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">Simulation</span><span class="p">(</span><span class="n">trial</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span></div>
+
+    <span class="nd">@functools.lru_cache</span><span class="p">()</span>
+<div class="viewcode-block" id="Output.simulations"><a class="viewcode-back" href="../../index.html#neurord.output.Output.simulations">[docs]</a>    <span class="k">def</span> <span class="nf">simulations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">list_nodes</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+        <span class="n">sims</span> <span class="o">=</span> <span class="p">[</span><span class="n">Simulation</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span>
+                <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">_v_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;trial&#39;</span><span class="p">)]</span>
+        <span class="n">sims</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">attrgetter</span><span class="p">(</span><span class="s1">&#39;number&#39;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">sims</span></div>
+
+    <span class="nd">@functools.lru_cache</span><span class="p">()</span>
+<div class="viewcode-block" id="Output.counts"><a class="viewcode-back" href="../../index.html#neurord.output.Output.counts">[docs]</a>    <span class="k">def</span> <span class="nf">counts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_group</span><span class="o">=</span><span class="s1">&#39;__main__&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Aggregated table of particle counts</span>
+
+<span class="sd">        &gt;&gt;&gt; out = Output(&#39;model.h5&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; counts = out.counts()</span>
+<span class="sd">        &gt;&gt;&gt; counts.head(1)</span>
+<span class="sd">                                 count</span>
+<span class="sd">        voxel time specie trial       </span>
+<span class="sd">        0     0    A      0       1265</span>
+
+<span class="sd">        Calculate average over trials</span>
+
+<span class="sd">        &gt;&gt;&gt; gb = counts.groupby(level=&#39;voxel time  specie&#39;.split())</span>
+<span class="sd">        &gt;&gt;&gt; gb.mean().head(1)</span>
+<span class="sd">                             count</span>
+<span class="sd">        voxel time specie         </span>
+<span class="sd">        0     0    A       1264.67</span>
+
+<span class="sd">        Calculate mean and standard deviation</span>
+
+<span class="sd">        &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">        &gt;&gt;&gt; gb.aggregate([np.mean, np.std]).head(3)</span>
+<span class="sd">                             count          </span>
+<span class="sd">                              mean       std</span>
+<span class="sd">        voxel time specie                   </span>
+<span class="sd">        0     0    A       1264.67  0.472582</span>
+<span class="sd">                   B       1204.47  0.501614</span>
+<span class="sd">                   C          0.00  0.000000</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sims</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulations</span><span class="p">()</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">sim</span><span class="o">.</span><span class="n">counts</span><span class="p">(</span><span class="n">output_group</span><span class="p">))</span>
+                    <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">sim</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sims</span><span class="p">))</span>
+        <span class="n">panel</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Panel</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">series</span> <span class="o">=</span> <span class="n">panel</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">stack</span><span class="p">()</span>
+        <span class="n">series</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="s1">&#39;voxel time specie trial&#39;</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="n">series</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">frame</span></div>
+
+    <span class="nd">@functools.lru_cache</span><span class="p">()</span>
+<div class="viewcode-block" id="Output.concentrations"><a class="viewcode-back" href="../../index.html#neurord.output.Output.concentrations">[docs]</a>    <span class="k">def</span> <span class="nf">concentrations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output_group</span><span class="o">=</span><span class="s1">&#39;__main__&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Counts converted to concentrations using voxel volumes</span>
+
+<span class="sd">        &gt;&gt;&gt; out = Output(&#39;model.h5&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; out.counts().head(1)</span>
+<span class="sd">                                 count</span>
+<span class="sd">        voxel time specie trial       </span>
+<span class="sd">        0     0    A      0       1265</span>
+<span class="sd">        &gt;&gt;&gt; out.concentrations().head(1)</span>
+<span class="sd">                                 concentration</span>
+<span class="sd">        voxel time specie trial               </span>
+<span class="sd">        0     0    A      0         1050.29078</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">counts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">counts</span><span class="p">(</span><span class="n">output_group</span><span class="p">)</span>
+        <span class="n">volumes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span><span class="o">.</span><span class="n">volume</span>
+        <span class="n">ans</span> <span class="o">=</span> <span class="n">counts</span> <span class="o">/</span> <span class="n">volumes</span> <span class="o">/</span> <span class="n">PUVC</span>
+        <span class="n">ans</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;count&#39;</span><span class="p">:</span><span class="s1">&#39;concentration&#39;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ans</span></div>
+
+    <span class="nd">@functools.lru_cache</span><span class="p">()</span>
+<div class="viewcode-block" id="Output.events"><a class="viewcode-back" href="../../index.html#neurord.output.Output.events">[docs]</a>    <span class="k">def</span> <span class="nf">events</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="s2">&quot;A log of events from all simulations&quot;</span>
+        <span class="n">sims</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulations</span><span class="p">()</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">sim</span><span class="o">.</span><span class="n">events</span><span class="p">())</span>
+                    <span class="k">for</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">sim</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sims</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">NeuroRD 0.0 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.4.
+    </div>
+  </body>
+</html>
